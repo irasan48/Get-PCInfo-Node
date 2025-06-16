@@ -1,0 +1,627 @@
+﻿<!DOCTYPE html>
+<html lang='hr'>
+<head>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <meta charset='UTF-8'>
+    <title>Lokalni korisnički računi</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body { 
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+h1 { 
+    color: white;
+    font-size: 32px;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: 1px;
+}
+
+.subtitle {
+    color: rgba(255,255,255,0.9);
+    font-size: 16px;
+    margin-bottom: 30px;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.container {
+    width: 100%;
+    max-width: 1600px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.table-wrapper { 
+    max-height: 700px; 
+    overflow: auto; 
+    margin: 20px;
+    border-radius: 10px;
+    position: relative;
+    background: white;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-corner {
+    background: #f1f1f1;
+}
+
+table { 
+    width: 100%; 
+    min-width: 1290px;
+    border-collapse: collapse;
+    font-size: 13px;
+    position: relative;
+    table-layout: fixed;
+}
+
+/* Poboljšani sticky header */
+thead {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+thead th { 
+    position: -webkit-sticky;
+    position: sticky; 
+    top: 0; 
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    color: white;
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    border-bottom: 2px solid rgba(255,255,255,0.3);
+}
+
+th:first-child {
+    border-top-left-radius: 10px;
+}
+
+th:last-child {
+    border-top-right-radius: 10px;
+}
+
+td { 
+    padding: 10px 8px;
+    border-bottom: 1px solid #e0e0e0;
+    color: #333;
+    vertical-align: top;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+tr:nth-child(even) td { 
+    background-color: #f8f9fa; 
+}
+
+tr:hover td { 
+    background-color: #e8eaf6;
+    transition: background-color 0.3s ease;
+}
+
+tr.user-disabled td {
+    background-color: #fef2f2 !important;
+}
+
+tr.user-disabled:hover td {
+    background-color: #fee2e2 !important;
+}
+
+tr.admin-user td {
+    background-color: #fef3c7 !important;
+}
+
+tr.admin-user:hover td {
+    background-color: #fde68a !important;
+}
+
+/* Poboljšani sticky prvi stupac */
+td:first-child, th:first-child { 
+    position: -webkit-sticky;
+    position: sticky; 
+    left: 0; 
+    background-color: #f5f5f5 !important;
+    font-weight: 600;
+    color: #667eea;
+    width: 40px;
+    text-align: center;
+    z-index: 101;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.2);
+}
+
+tr:hover td:first-child {
+    background-color: #e8eaf6;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.15);
+}
+
+tr.user-disabled td:first-child {
+    background-color: #fee2e2 !important;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+}
+
+tr.admin-user td:first-child {
+    background-color: #fde68a !important;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+}
+
+thead th:first-child {
+    background: linear-gradient(135deg, #8e94f2, #9a9ff9) !important;
+    z-index: 102;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    position: -webkit-sticky;
+    position: sticky;
+    left: 0;
+    top: 0;
+}
+
+/* Status badges */
+.status-badge {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.status-disabled {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.admin-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+/* Password info stilovi */
+.pwd-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pwd-info span {
+    background: #f3f4f6;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #6b7280;
+}
+
+.pwd-info span:nth-child(1),
+.pwd-info span:nth-child(3) {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    font-weight: 600;
+}
+
+.pwd-info b {
+    color: #1f2937;
+    font-weight: 600;
+}
+
+/* Stilovi za istijek lozinke i računa */
+.expiry-critical {
+    color: #dc2626 !important;
+    font-weight: 600 !important;
+    background-color: #fee2e2 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 10px !important;
+}
+
+.expiry-warning {
+    color: #d97706 !important;
+    font-weight: 600 !important;
+    background-color: #fef3c7 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 10px !important;
+}
+
+.expiry-ok {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    background-color: #059669 !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 10px !important;
+}
+
+.expiry-never {
+    color: #1f2937 !important;
+    font-weight: 700 !important;
+    background-color: #e5e7eb !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 10px !important;
+    border: 1px solid #9ca3af !important;
+}
+
+.expiry-unknown {
+    color: #9ca3af !important;
+    font-style: italic !important;
+    font-size: 10px !important;
+}
+
+code {
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: #475569;
+}
+
+.stats-container {
+    display: flex;
+    justify-content: center;
+    padding: 30px;
+}
+
+.stats-box {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    text-align: center;
+    transform: translateY(0);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+}
+
+.stats-box p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.stats-box b {
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Optimizacija širine stupaca prema sadržaju */
+th:nth-child(1), td:nth-child(1) { width: 40px; min-width: 40px; max-width: 40px; }
+th:nth-child(2), td:nth-child(2) { width: 120px; min-width: 100px; max-width: 150px; }
+th:nth-child(3), td:nth-child(3) { width: 140px; min-width: 120px; max-width: 180px; }
+th:nth-child(4), td:nth-child(4) { width: 130px; min-width: 120px; max-width: 150px; }
+th:nth-child(5), td:nth-child(5) { width: 340px; min-width: 320px; max-width: 360px; }
+th:nth-child(6), td:nth-child(6) { width: 130px; min-width: 110px; max-width: 160px; }
+th:nth-child(7), td:nth-child(7) { width: 310px; min-width: 290px; max-width: 330px; }
+th:nth-child(8), td:nth-child(8) { width: 100px; min-width: 80px; max-width: 120px; }
+
+/* Animacija učitavanja */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    animation: fadeIn 0.6s ease-out;
+}
+
+/* Responsive dizajn */
+@media (max-width: 768px) {
+    h1 { font-size: 24px; }
+    .table-wrapper { margin: 10px; }
+    td, th { padding: 8px 6px; font-size: 11px; }
+    .stats-box { padding: 15px 25px; }
+    .pwd-info { gap: 2px; }
+    .pwd-info span { font-size: 10px; }
+    .container { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+    <h1>Status lokalnih korisničkih računa</h1>
+    <p class="subtitle">Crvena boja označava neaktivne (onemogućene) račune, žuta administratore.<br>Označavanje rokova valjanosti bojom: <span class="expiry-critical">Kritično (7 dana)</span>, <span class="expiry-warning">Upozorenje (14 dana)</span>, <span class="expiry-ok">Uredu (>14 dana)</span>, <span class="expiry-never">Nikad</span></p>
+    <div class='container'>
+        <div class='table-wrapper'>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Korisničko ime</th>
+                        <th>Puno ime</th>
+                        <th>Status</th>
+                        <th>Lozinka</th>
+                        <th>Zadnja prijava</th>
+                        <th>SID</th>
+                        <th>Grupe</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class=''><td>1</td><td>1234567 </td><td>kjčkjčk -saasfdasf</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-critical'>30.5.2025. 0:00:00</span></span>
+    <span><b>Password last set:</b> 9.5.2025. 13:26:21</span>
+    <span><b>Password expires:</b> <span class='expiry-critical'>23.6.2025. 13:26:21</span></span>
+    <span><b>Password changeable:</b> 10.5.2025. 13:26:21</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1175</code></td><td>*EU_CONFIDENTIAL-R</td></tr>
+<tr class=''><td>2</td><td>12345678 </td><td>hjkbhkhl gfcjf</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-ok'>12.12.2026. 0:00:00</span></span>
+    <span><b>Password last set:</b> 12.5.2025. 14:04:30</span>
+    <span><b>Password expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password changeable:</b> 13.5.2025. 14:04:30</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1180</code></td><td>*Users</td></tr>
+<tr class=''><td>3</td><td>23.5.2025 </td><td>Kreiran 23.5.2025</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:24</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:24</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:24</span>
+    <span><b>Password required:</b> Yes</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1191</code></td><td>*Users</td></tr>
+<tr class=''><td>4</td><td>4563211 </td><td>fgxdfgxdf</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-critical'>28.5.2025. 0:00:00</span></span>
+    <span><b>Password last set:</b> 9.5.2025. 13:52:51</span>
+    <span><b>Password expires:</b> <span class='expiry-critical'>23.6.2025. 13:52:51</span></span>
+    <span><b>Password changeable:</b> 10.5.2025. 13:52:51</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1179</code></td><td>*EU_RESTRICTED-RW</td></tr>
+<tr class='user-disabled'><td>5</td><td>Administrator <span class='admin-badge'>ADMIN</span></td><td>Admin</td><td><span class='status-badge status-disabled'>ONEMOGUĆEN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 13.2.2025. 16:12:16</span>
+    <span><b>Password expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password changeable:</b> 14.2.2025. 16:12:16</span>
+    <span><b>Password required:</b> Yes</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>3.3.2025. 9:52:29</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-500</code></td><td>*Administrators</td></tr>
+<tr class='admin-user'><td>6</td><td>b <span class='admin-badge'>ADMIN</span></td><td>Boris Kardoš</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 4.3.2025. 10:47:03</span>
+    <span><b>Password expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password changeable:</b> 5.3.2025. 10:47:03</span>
+    <span><b>Password required:</b> Yes</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1003</code></td><td>*Administrators</td></tr>
+<tr class=''><td>7</td><td>danas </td><td>Danas i sutra</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:24</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:24</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:24</span>
+    <span><b>Password required:</b> Yes</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1188</code></td><td>*Users</td></tr>
+<tr class='user-disabled'><td>8</td><td>DefaultAccount </td><td></td><td><span class='status-badge status-disabled'>ONEMOGUĆEN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:24</span>
+    <span><b>Password expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:24</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-503</code></td><td>*System Managed Group</td></tr>
+<tr class=''><td>9</td><td>drago.kelemen </td><td>Drago Kelemen</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-ok'>23.3.2027. 0:00:00</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:24</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:24</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:24</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1185</code></td><td>*NACIONALNO_POVJERLJIV*Users</td></tr>
+<tr class=''><td>10</td><td>dunja.bujan.sujster </td><td>Dunja Bujan Šujster</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-ok'>23.6.2028. 0:00:00</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:24</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:24</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:24</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1181</code></td><td>*EU_CONFIDENTIAL-RW</td></tr>
+<tr class=''><td>11</td><td>franc.propuh </td><td>Franc Propuh</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:24</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:24</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:24</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1144</code></td><td>*NATO_CONFIDENTIAL-RW *Users</td></tr>
+<tr class=''><td>12</td><td>franjo.tahi-stariji </td><td>Franjo Tahi-Stariji</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:24</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:24</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:24</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1146</code></td><td>*Users</td></tr>
+<tr class=''><td>13</td><td>franjo.tahi.stariji </td><td>Franjo Tahi Stariji</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:24</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:24</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:24</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1145</code></td><td>*EU_SECRET-RW</td></tr>
+<tr class=''><td>14</td><td>fsdeg </td><td>sdfg</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 9.5.2025. 13:09:14</span>
+    <span><b>Password expires:</b> <span class='expiry-critical'>23.6.2025. 13:09:14</span></span>
+    <span><b>Password changeable:</b> 10.5.2025. 13:09:14</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1162</code></td><td>*Users</td></tr>
+<tr class='admin-user'><td>15</td><td>g <span class='admin-badge'>ADMIN</span></td><td>Gabrijel Tomić</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 4.3.2025. 10:47:39</span>
+    <span><b>Password expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password changeable:</b> 5.3.2025. 10:47:39</span>
+    <span><b>Password required:</b> Yes</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1004</code></td><td>*Administrators</td></tr>
+<tr class='user-disabled'><td>16</td><td>Guest </td><td></td><td><span class='status-badge status-disabled'>ONEMOGUĆEN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:24</span>
+    <span><b>Password expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:24</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> No</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-501</code></td><td>*Guests</td></tr>
+<tr class=''><td>17</td><td>hjgfhj </td><td>fhjgj</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 9.5.2025. 13:37:03</span>
+    <span><b>Password expires:</b> <span class='expiry-critical'>23.6.2025. 13:37:03</span></span>
+    <span><b>Password changeable:</b> 10.5.2025. 13:37:03</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1178</code></td><td>*Users</td></tr>
+<tr class='admin-user'><td>18</td><td>i <span class='admin-badge'>ADMIN</span></td><td>Ivica Raššan</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 3.3.2025. 9:54:39</span>
+    <span><b>Password expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password changeable:</b> 4.3.2025. 9:54:39</span>
+    <span><b>Password required:</b> Yes</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>16.6.2025. 8:40:01</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1002</code></td><td>*Administrators</td></tr>
+<tr class=''><td>19</td><td>jasna.siric </td><td>Jasna Širić</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-ok'>26.2.2030. 0:00:00</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:24</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:24</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:24</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1184</code></td><td>*EU_SECRET-RW</td></tr>
+<tr class=''><td>20</td><td>kristijan.beljan </td><td>Kristijan Beljan</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-ok'>20.7.2027. 0:00:00</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:25</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:25</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:25</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1183</code></td><td>*Users</td></tr>
+<tr class=''><td>21</td><td>lenka.peric </td><td>Lenka Perić</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-ok'>14.4.2028. 0:00:00</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:25</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:25</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:25</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1186</code></td><td>*Users</td></tr>
+<tr class=''><td>22</td><td>nikolina.volf </td><td>Nikolina Volf</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-ok'>8.2.2027. 0:00:00</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:25</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:25</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:25</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1182</code></td><td>*Users</td></tr>
+<tr class=''><td>23</td><td>test </td><td>test</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-ok'>2.2.2027. 1:00:00</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:25</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:25</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:25</span>
+    <span><b>Password required:</b> Yes</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1005</code></td><td>*Users</td></tr>
+<tr class=''><td>24</td><td>TestAuditUser </td><td></td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:25</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:25</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:25</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1189</code></td><td></td></tr>
+<tr class=''><td>25</td><td>TestKR </td><td></td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:25</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:25</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:25</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1190</code></td><td>*Users</td></tr>
+<tr class=''><td>26</td><td>TestKR123 </td><td></td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 23.5.2025. 13:37:14</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>7.7.2025. 13:37:14</span></span>
+    <span><b>Password changeable:</b> 24.5.2025. 13:37:14</span>
+    <span><b>Password required:</b> No</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1192</code></td><td></td></tr>
+<tr class=''><td>27</td><td>test_test </td><td>test_test</td><td><span class='status-badge status-active'>AKTIVAN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-critical'>31.5.2024. 1:00:00</span></span>
+    <span><b>Password last set:</b> 16.6.2025. 11:28:25</span>
+    <span><b>Password expires:</b> <span class='expiry-ok'>31.7.2025. 11:28:25</span></span>
+    <span><b>Password changeable:</b> 17.6.2025. 11:28:25</span>
+    <span><b>Password required:</b> Yes</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-1006</code></td><td>*Users</td></tr>
+<tr class='user-disabled'><td>28</td><td>WDAGUtilityAccount </td><td></td><td><span class='status-badge status-disabled'>ONEMOGUĆEN</span></td><td><div class='pwd-info'>
+    <span><b>Account expires:</b> <span class='expiry-never'>Never</span></span>
+    <span><b>Password last set:</b> 13.2.2025. 16:05:08</span>
+    <span><b>Password expires:</b> <span class='expiry-critical'>30.3.2025. 16:05:08</span></span>
+    <span><b>Password changeable:</b> 14.2.2025. 16:05:08</span>
+    <span><b>Password required:</b> Yes</span>
+    <span><b>User may change password:</b> Yes</span>
+</div></td><td>Never</td><td><code>S-1-5-21-2753563164-3101772377-3858997066-504</code></td><td></td></tr>
+
+                </tbody>
+            </table>
+        </div>
+        <div class='stats-container'>
+            <div class='stats-box'>
+                <p><b>Generirano:</b> 16.06.2025 11:28:25</p>
+                <p><b>Sustav:</b> DESKTOP-NQNN5RG</p>
+                <p><b>Ukupno korisnika:</b> 28</p>
+                <p><b>Onemogućenih:</b> 4</p>
+                <p><b>Administratora:</b> 4</p>
+                <p><b>Korisnik:</b> i</p>
+				<p><b>© Ivica Rašan 2025</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

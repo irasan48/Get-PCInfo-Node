@@ -1,14 +1,7 @@
 const os = require('os');
-const { execSync } = require('child_process');
 const si = require('systeminformation');
-const fs = require('fs');
-const path = require('path');
 
 class SystemInfo {
-    constructor() {
-        this.platform = process.platform;
-    }
-
     formatBytes(bytes, decimals = 2) {
         if (bytes === 0) return '0 Bytes';
         const k = 1024;
@@ -18,32 +11,26 @@ class SystemInfo {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
 
+    formatUptime(seconds) {
+        const days = Math.floor(seconds / (3600 * 24));
+        const hours = Math.floor(seconds % (3600 * 24) / 3600);
+        const minutes = Math.floor(seconds % 3600 / 60);
+        return `${days}d ${hours}h ${minutes}m`;
+    }
+
     async getAllSystemInfo() {
         try {
-            const [cpu, mem, graphics, diskLayout, fsSize, system, bios, baseboard, networkInterfaces, osInfo, users, processes] = await Promise.all([
+            const [cpu, mem, graphics, diskLayout, osInfo] = await Promise.all([
                 si.cpu(),
                 si.mem(),
                 si.graphics(),
                 si.diskLayout(),
-                si.fsSize(),
-                si.system(),
-                si.bios(),
-                si.baseboard(),
-                si.networkInterfaces(),
-                si.osInfo(),
-                si.users(),
-                si.processes()
+                si.osInfo()
             ]);
 
             let totalDiskSpace = 0;
-            let usedDiskSpace = 0;
-            
             diskLayout.forEach(disk => {
                 totalDiskSpace += disk.size || 0;
-            });
-            
-            fsSize.forEach(fs => {
-                usedDiskSpace += fs.used || 0;
             });
 
             return {
@@ -77,37 +64,18 @@ class SystemInfo {
                     usage: Math.round((mem.used / mem.total) * 100)
                 },
 
-                graphics: graphics.controllers.map(gpu => ({
-                    vendor: gpu.vendor,
-                    model: gpu.model,
-                    vram: gpu.vram ? `${gpu.vram}MB` : 'N/A',
-                    driverVersion: gpu.driverVersion || 'N/A'
-                })),
+                graphics: graphics.controllers,
 
                 storage: {
                     total: this.formatBytes(totalDiskSpace),
                     totalGB: Math.round(totalDiskSpace / (1024 * 1024 * 1024)),
-                    used: this.formatBytes(usedDiskSpace),
-                    free: this.formatBytes(totalDiskSpace - usedDiskSpace),
-                    usage: totalDiskSpace > 0 ? Math.round((usedDiskSpace / totalDiskSpace) * 100) : 0,
-                    disks: diskLayout.map(disk => ({
-                        device: disk.device || disk.name,
-                        type: disk.type,
-                        size: this.formatBytes(disk.size)
-                    }))
+                    disks: diskLayout
                 }
             };
         } catch (error) {
-            console.error('Error getting system info:', error);
+            console.error('Error:', error);
             throw error;
         }
-    }
-
-    formatUptime(seconds) {
-        const days = Math.floor(seconds / (3600 * 24));
-        const hours = Math.floor(seconds % (3600 * 24) / 3600);
-        const minutes = Math.floor(seconds % 3600 / 60);
-        return `${days}d ${hours}h ${minutes}m`;
     }
 }
 

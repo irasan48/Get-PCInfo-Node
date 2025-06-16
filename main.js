@@ -1,44 +1,31 @@
-const SystemInfo = require('./system-info');
-const systemInfo = new SystemInfo();
-
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
-const { exec } = require('child_process');
-const fs = require('fs').promises;
-const os = require('os');
+const si = require('systeminformation');
 
 let mainWindow;
 
-// Kreiranje glavnog prozora
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1200,
         height: 800,
-        minWidth: 900,
-        minHeight: 600,
         webPreferences: {
-            nodeIntegration: false,
+            preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js')
+            nodeIntegration: false
         },
-        frame: false, // Prilagođena naslovna traka
-        backgroundColor: '#1a1a1a',
-        icon: path.join(__dirname, 'assets/icon.png') // Dodajte svoju ikonu
+        frame: false,  // <-- OVO MORATE DODATI!!!
+        autoHideMenuBar: true,
+        backgroundColor: '#1e1e2e'
     });
 
     mainWindow.loadFile('index.html');
-
-    // Otvori DevTools u razvojnom načinu rada
+    
+    // Otvori DevTools u development modu
     if (process.env.NODE_ENV === 'development') {
         mainWindow.webContents.openDevTools();
     }
-
-    mainWindow.on('closed', () => {
-        mainWindow = null;
-    });
 }
 
-// Rukovatelji događaja aplikacije
 app.whenReady().then(createWindow);
 
 app.on('window-all-closed', () => {
@@ -48,111 +35,122 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-    if (mainWindow === null) {
+    if (BrowserWindow.getAllWindows().length === 0) {
         createWindow();
     }
 });
 
-// IPC rukovatelji za kontrole prozora
+// Title bar handlers
 ipcMain.on('minimize-window', () => {
-    mainWindow.minimize();
+    if (mainWindow) {
+        mainWindow.minimize();
+    }
 });
 
 ipcMain.on('maximize-window', () => {
-    if (mainWindow.isMaximized()) {
-        mainWindow.unmaximize();
-    } else {
-        mainWindow.maximize();
+    if (mainWindow) {
+        if (mainWindow.isMaximized()) {
+            mainWindow.unmaximize();
+        } else {
+            mainWindow.maximize();
+        }
     }
 });
 
 ipcMain.on('close-window', () => {
-    mainWindow.close();
+    if (mainWindow) {
+        mainWindow.close();
+    }
 });
 
-// IPC handler za sistemske informacije
+// IPC handler za dobijanje informacija o sistemu
 ipcMain.handle('get-system-info', async () => {
     try {
-        return await systemInfo.getAllSystemInfo();
+        console.log('Getting system info...');
+        
+        const [cpu, mem, osInfo, graphics, diskLayout, fsSize] = await Promise.all([
+            si.cpu(),
+            si.mem(), 
+            si.osInfo(),
+            si.graphics(),
+            si.diskLayout(),
+            si.fsSize()
+        ]);
+
+        // Računanje ukupnog prostora na disku
+        let totalDiskSpace = 0;
+        
+        // Metoda 1: Koristi diskLayout za fizičke diskove
+        if (diskLayout && diskLayout.length > 0) {
+            diskLayout.forEach(disk => {
+                if (disk.size && disk.size > 0) {
+                    totalDiskSpace += disk.size;
+                }
+            });
+        }
+        
+        // Metoda 2: Ako diskLayout ne radi, koristi fsSize za logičke particije
+        if (totalDiskSpace === 0 && fsSize && fsSize.length > 0) {
+            // Resetuj total
+            totalDiskSpace = 0;
+            
+            // Izbegni duplikate koristeći Set za mount points
+            const processedMounts = new Set();
+            
+            fsSize.forEach(fs => {
+                // Samo dodaj ako nije već procesiran i ima validnu veličinu
+                if (fs.size && fs.size > 0 && !processedMounts.has(fs.mount)) {
+                    // Za Windows, fokusiraj se na drive letters (C:, D:, etc.)
+                    if (process.platform === 'win32') {
+                        if (fs.mount && fs.mount.match(/^[A-Z]:\\$/)) {
+                            totalDiskSpace += fs.size;
+                            processedMounts.add(fs.mount);
+                        }
+                    } else {
+                        // Za Linux/Mac
+                        totalDiskSpace += fs.size;
+                        processedMounts.add(fs.mount);
+                    }
+                }
+            });
+        }
+
+        console.log('Total disk space calculated:', totalDiskSpace);
+
+        const systemInfo = {
+            cpu: {
+                manufacturer: cpu.manufacturer,
+                brand: cpu.brand,
+                speed: cpu.speed,
+                cores: cpu.cores,
+                physicalCores: cpu.physicalCores
+            },
+            memory: {
+                total: mem.total,
+                free: mem.free,
+                used: mem.used
+            },
+            os: {
+                platform: osInfo.platform,
+                distro: osInfo.distro,
+                release: osInfo.release,
+                arch: osInfo.arch,
+                hostname: osInfo.hostname
+            },
+            graphics: graphics.controllers,
+            disk: {
+                total: totalDiskSpace,
+                layout: diskLayout,
+                filesystems: fsSize
+            },
+            computerName: osInfo.hostname
+        };
+
+        console.log('System info collected:', systemInfo);
+        return systemInfo;
+        
     } catch (error) {
         console.error('Error getting system info:', error);
         throw error;
     }
-});
-
-// IPC rukovatelj za izvršavanje skripti
-ipcMain.handle('execute-script', async (event, scriptName) => {
-    const scriptsPath = path.join(__dirname, 'scripts');
-    const scriptPath = path.join(scriptsPath, scriptName);
-    
-    return new Promise((resolve) => {
-        // Izvršavanje .exe datoteke
-        exec(`"${scriptPath}"`, { 
-            cwd: scriptsPath,
-            encoding: 'utf8',
-            shell: true // Važno za Windows
-        }, async (error, stdout, stderr) => {
-            if (error) {
-                console.error('Greška izvršavanja:', error);
-                resolve({
-                    success: false,
-                    error: error.message
-                });
-                return;
-            }
-            
-            try {
-                // Nakon izvršavanja, traži generirani HTML fajl
-                const baseName = path.basename(scriptName, '.exe');
-                const possibleHtmlPaths = [
-                    path.join(scriptsPath, `${baseName}.html`),
-                    path.join(scriptsPath, `${baseName}_output.html`),
-                    path.join(scriptsPath, 'output.html'),
-                    path.join(process.cwd(), `${baseName}.html`)
-                ];
-                
-                let htmlContent = '';
-                let htmlFound = false;
-                
-                // Pokušaj pronaći i pročitati HTML datoteku
-                for (const htmlPath of possibleHtmlPaths) {
-                    try {
-                        await fs.access(htmlPath);
-                        htmlContent = await fs.readFile(htmlPath, 'utf8');
-                        htmlFound = true;
-                        
-                        // Obriši HTML datoteku nakon čitanja
-                        await fs.unlink(htmlPath).catch(() => {});
-                        break;
-                    } catch (err) {
-                        // Nastavi na sljedeću putanju
-                    }
-                }
-                
-                // Ako HTML datoteka nije pronađena, koristi stdout
-                if (!htmlFound && stdout) {
-                    if (stdout.includes('<html>') || stdout.includes('<table>')) {
-                        htmlContent = stdout;
-                    } else {
-                        // Pretvori obični tekst u HTML
-                        htmlContent = `<pre>${stdout}</pre>`;
-                    }
-                } else if (!htmlFound && !stdout) {
-                    htmlContent = '<p>Skripta izvršena uspješno, ali nije generiran izlaz.</p>';
-                }
-                
-                resolve({
-                    success: true,
-                    html: htmlContent,
-                    stdout: stdout,
-                    stderr: stderr
-                });
-            } catch (err) {
-                resolve({
-                    success: false,
-                    error: err.message
-                });
-            }
-        });
-    });
 });

@@ -86,7 +86,7 @@
                 <div class="stat-card">
                     <div class="stat-icon">💿</div>
                     <div class="stat-value" id="diskPreview">--</div>
-                    <div class="stat-label">Disk</div>
+                    <div class="stat-label">DISK</div>
                 </div>
             </div>
             
@@ -412,14 +412,48 @@
             // CPU
             const cpuPreview = document.getElementById('cpuPreview');
             if (cpuPreview && data.cpu) {
-                cpuPreview.textContent = data.cpu.brand || 'Unknown';
+                // Skrati naziv CPU-a
+                let cpuName = data.cpu.brand || 'Unknown';
+                
+                // Ukloni redundantne dijelove
+                cpuName = cpuName.replace('Intel(R) Core(TM) ', 'Intel ');
+                cpuName = cpuName.replace('AMD Ryzen ', 'Ryzen ');
+                cpuName = cpuName.replace(' CPU', '');
+                
+                // Ako je još uvijek predugačak, skrati
+                if (cpuName.length > 25) {
+                    // Pronađi @ i zadrži samo dio prije
+                    const atIndex = cpuName.indexOf('@');
+                    if (atIndex > 0) {
+                        cpuName = cpuName.substring(0, atIndex).trim();
+                    } else {
+                        cpuName = cpuName.substring(0, 25) + '...';
+                    }
+                }
+                
+                cpuPreview.textContent = cpuName;
             }
             
             // Disk
             const diskPreview = document.getElementById('diskPreview');
             if (diskPreview && data.disk) {
                 const diskGB = Math.round(data.disk.total / (1024 * 1024 * 1024));
-                diskPreview.textContent = diskGB + ' GB';
+                console.log('Disk total bytes:', data.disk.total);
+                console.log('Disk total GB:', diskGB);
+                
+                if (diskGB > 0) {
+                    diskPreview.textContent = diskGB + ' GB';
+                } else {
+                    // Ako još uvijek nema podataka, pokušaj alternativni način
+                    let totalSize = 0;
+                    if (data.disk.filesystems && data.disk.filesystems.length > 0) {
+                        data.disk.filesystems.forEach(fs => {
+                            if (fs.size) totalSize += fs.size;
+                        });
+                    }
+                    const altGB = Math.round(totalSize / (1024 * 1024 * 1024));
+                    diskPreview.textContent = altGB > 0 ? altGB + ' GB' : 'N/A';
+                }
             }
         } catch (error) {
             console.error('Error updating preview:', error);
