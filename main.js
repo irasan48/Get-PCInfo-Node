@@ -1,4 +1,5 @@
-// main.js - Electron glavni proces
+const SystemInfo = require('./system-info');
+const systemInfo = new SystemInfo();
 
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
@@ -72,55 +73,10 @@ ipcMain.on('close-window', () => {
 // IPC handler za sistemske informacije
 ipcMain.handle('get-system-info', async () => {
     try {
-        const totalMem = os.totalmem();
-        const cpus = os.cpus();
-        
-        // Za disk informacije na Windows-u
-        let diskSize = 512; // Default vrijednost
-        
-        if (process.platform === 'win32') {
-            try {
-                const { exec } = require('child_process');
-                const util = require('util');
-                const execPromise = util.promisify(exec);
-                
-                const { stdout } = await execPromise('wmic logicaldisk get size,freespace,caption');
-                // Parsiraj disk informacije iz stdout-a
-                // Ovo je pojednostavljena verzija
-                const lines = stdout.split('\n');
-                if (lines.length > 1) {
-                    // Uzmi C: disk
-                    const cDisk = lines.find(line => line.includes('C:'));
-                    if (cDisk) {
-                        const parts = cDisk.trim().split(/\s+/);
-                        if (parts.length >= 3) {
-                            diskSize = Math.round(parseInt(parts[2]) / 1024 / 1024 / 1024);
-                        }
-                    }
-                }
-            } catch (err) {
-                console.error('Greška pri dobivanju disk informacija:', err);
-            }
-        }
-        
-        return {
-            ram: Math.round(totalMem / 1024 / 1024 / 1024),
-            cpu: cpus.length,
-            cpuModel: cpus[0]?.model || 'Unknown CPU',
-            platform: os.platform(),
-            hostname: os.hostname(),
-            disk: diskSize
-        };
+        return await systemInfo.getAllSystemInfo();
     } catch (error) {
-        console.error('Greška pri dobivanju sistemskih informacija:', error);
-        return {
-            ram: 16,
-            cpu: 8,
-            cpuModel: 'Intel Core i7',
-            platform: os.platform(),
-            hostname: 'Unknown',
-            disk: 512
-        };
+        console.error('Error getting system info:', error);
+        throw error;
     }
 });
 

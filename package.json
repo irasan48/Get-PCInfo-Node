@@ -1,50 +1,63 @@
 {
-  "name": "get-pcinfo",
+  "name": "get-pcinfo-node",
   "version": "1.0.0",
-  "description": "Napredni sustav za upravljanje IT infrastrukturom",
+  "description": "Node.js version of Get-PCInfo - System information gathering tool",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "NODE_ENV=development electron .",
+    "test": "node test.js",
     "build": "electron-builder",
     "dist": "electron-builder --publish=never"
   },
-  "keywords": ["electron", "system-info", "windows", "admin-tools"],
-  "author": "Your Name",
+  "keywords": [
+    "system-info",
+    "pc-info",
+    "hardware",
+    "electron"
+  ],
+  "author": "irasan48",
   "license": "MIT",
+  "dependencies": {
+    "systeminformation": "^5.21.20"
+  },
   "devDependencies": {
-    "electron": "^27.0.0",
-    "electron-builder": "^24.6.4"
+    "electron": "^28.1.0",
+    "electron-builder": "^24.9.1"
   },
   "build": {
-    "appId": "com.yourcompany.getpcinfo",
+    "appId": "com.irasan48.getpcinfo",
     "productName": "Get-PCInfo",
     "directories": {
       "output": "dist"
     },
     "files": [
       "**/*",
-      "!**/*.ts",
-      "!*.code-workspace",
-      "!LICENSE.md",
-      "!package-lock.json",
-      "!yarn.lock",
-      "!dist"
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
     ],
     "win": {
-      "icon": "assets/icon.ico",
-      "target": [
-        {
-          "target": "nsis",
-          "arch": ["x64", "ia32"]
-        }
-      ]
+      "target": "nsis",
+      "icon": "assets/icon.ico"
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+      "allowToChangeInstallationDirectory": true
+    },
+    "mac": {
+      "category": "public.app-category.utilities",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Utility",
+      "icon": "assets/icon.png"
     }
   }
 }
