@@ -128,7 +128,7 @@
                         </div>
                     </div>
                     <div class="header-info">
-                        <h1>Get-PCInfo Professional ver. 2025.6.3</h1>
+                        <h1>Get-PCInfo Professional</h1>
                         <p class="header-subtitle">IT Administrator alat za analizu sistema</p>
                     </div>
                 </div>
@@ -315,6 +315,368 @@
             </div>
         </div>
     </div>
+
+    <!-- JavaScript Code -->
+    <script>
+    // Title bar functions
+    function minimizeWindow() {
+        if (window.electronAPI && window.electronAPI.minimizeWindow) {
+            window.electronAPI.minimizeWindow();
+        }
+    }
+
+    function maximizeWindow() {
+        if (window.electronAPI && window.electronAPI.maximizeWindow) {
+            window.electronAPI.maximizeWindow();
+        }
+    }
+
+    function closeWindow() {
+        if (window.electronAPI && window.electronAPI.closeWindow) {
+            window.electronAPI.closeWindow();
+        } else {
+            window.close();
+        }
+    }
+
+    // Start application function
+    async function startApplication() {
+        console.log('Starting application...');
+        
+        try {
+            // Pokaži loading bar
+            const loadingBar = document.getElementById('loadingBar');
+            if (loadingBar) {
+                loadingBar.style.display = 'block';
+            }
+            
+            // Animiraj loading progress
+            const loadingProgress = document.querySelector('.loading-progress');
+            if (loadingProgress) {
+                loadingProgress.style.width = '50%';
+            }
+            
+            // Pozovi Electron API za sistem info
+            if (window.electronAPI && window.electronAPI.getSystemInfo) {
+                const systemData = await window.electronAPI.getSystemInfo();
+                console.log('System data received:', systemData);
+                
+                // Ažuriraj preview podatke
+                updateSystemPreview(systemData);
+                
+                // Završi loading
+                if (loadingProgress) {
+                    loadingProgress.style.width = '100%';
+                }
+                
+                // Nakon 500ms, prebaci na glavni ekran
+                setTimeout(() => {
+                    document.getElementById('welcomeScreen').style.display = 'none';
+                    document.getElementById('mainContainer').style.display = 'block';
+                    
+                    // Pokreni sat
+                    updateTime();
+                    setInterval(updateTime, 1000);
+                    
+                    // Pokreni live stats
+                    updateLiveStats(systemData);
+                    setInterval(() => updateLiveStats(systemData), 2000);
+                }, 500);
+                
+            } else {
+                throw new Error('Electron API nije dostupan');
+            }
+            
+        } catch (error) {
+            console.error('Error starting application:', error);
+            alert('Greška pri pokretanju aplikacije: ' + error.message);
+            
+            // Sakrij loading
+            const loadingBar = document.getElementById('loadingBar');
+            if (loadingBar) {
+                loadingBar.style.display = 'none';
+            }
+        }
+    }
+
+    // Update system preview on welcome screen
+    function updateSystemPreview(data) {
+        try {
+            // RAM
+            const ramPreview = document.getElementById('ramPreview');
+            if (ramPreview && data.memory) {
+                const ramGB = Math.round(data.memory.total / (1024 * 1024 * 1024));
+                ramPreview.textContent = ramGB + ' GB';
+            }
+            
+            // CPU
+            const cpuPreview = document.getElementById('cpuPreview');
+            if (cpuPreview && data.cpu) {
+                cpuPreview.textContent = data.cpu.brand || 'Unknown';
+            }
+            
+            // Disk
+            const diskPreview = document.getElementById('diskPreview');
+            if (diskPreview && data.disk) {
+                const diskGB = Math.round(data.disk.total / (1024 * 1024 * 1024));
+                diskPreview.textContent = diskGB + ' GB';
+            }
+        } catch (error) {
+            console.error('Error updating preview:', error);
+        }
+    }
+
+    // Update time
+    function updateTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('hr-HR');
+        const dateStr = now.toLocaleDateString('hr-HR');
+        const headerTime = document.getElementById('headerTime');
+        if (headerTime) {
+            headerTime.innerHTML = `<div>${timeStr}</div><div style="font-size: 0.8em; opacity: 0.7;">${dateStr}</div>`;
+        }
+    }
+
+    // Update live stats
+    function updateLiveStats(systemData) {
+        // CPU usage (simulirano za sada)
+        const cpuUsage = Math.floor(Math.random() * 100);
+        document.getElementById('cpuUsage').textContent = cpuUsage + '%';
+        document.getElementById('cpuFill').style.width = cpuUsage + '%';
+        
+        // RAM usage
+        if (systemData && systemData.memory) {
+            const ramUsage = Math.round((systemData.memory.used / systemData.memory.total) * 100);
+            document.getElementById('ramUsage').textContent = ramUsage + '%';
+            document.getElementById('ramFill').style.width = ramUsage + '%';
+        }
+    }
+
+    // Tab switching
+    function switchTab(tabName, event) {
+        console.log('Switching to tab:', tabName);
+        
+        // Remove active class from all tabs
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Add active class to clicked tab
+        if (event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Update content header
+        const contentHeader = document.getElementById('contentHeader');
+        const tabText = event.currentTarget.querySelector('.tab-text').textContent;
+        contentHeader.innerHTML = `<h2>${tabText}</h2><div class="header-line"></div>`;
+        
+        // Update content body based on tab
+        const contentBody = document.getElementById('contentBody');
+        
+        switch(tabName) {
+            case 'home':
+                // Show welcome content
+                location.reload();
+                break;
+            case 'lokalni-korisnici':
+                contentBody.innerHTML = `
+                    <div class="tab-content">
+                        <h3>Lokalni korisnički računi</h3>
+                        <p>Učitavanje liste lokalnih korisnika...</p>
+                    </div>
+                `;
+                loadLocalUsers();
+                break;
+            case 'info':
+                showSystemInfo();
+                break;
+            default:
+                contentBody.innerHTML = `
+                    <div class="tab-content">
+                        <h3>${tabText}</h3>
+                        <p>Ova funkcija je trenutno u razvoju.</p>
+                    </div>
+                `;
+        }
+    }
+
+    // Load local users
+    async function loadLocalUsers() {
+        // Simulacija učitavanja korisnika
+        setTimeout(() => {
+            const contentBody = document.getElementById('contentBody');
+            contentBody.innerHTML = `
+                <div class="tab-content">
+                    <h3>Lokalni korisnički računi</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Korisničko ime</th>
+                                <th>Puno ime</th>
+                                <th>Status</th>
+                                <th>Zadnja prijava</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Administrator</td>
+                                <td>Administrator</td>
+                                <td><span class="badge active">Aktivan</span></td>
+                                <td>2025-01-10 14:30</td>
+                            </tr>
+                            <tr>
+                                <td>Guest</td>
+                                <td>Guest Account</td>
+                                <td><span class="badge inactive">Neaktivan</span></td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }, 1000);
+    }
+
+    // Show system info
+    async function showSystemInfo() {
+        try {
+            const data = await window.electronAPI.getSystemInfo();
+            const contentBody = document.getElementById('contentBody');
+            
+            contentBody.innerHTML = `
+                <div class="tab-content system-info">
+                    <h3>Informacije o sistemu</h3>
+                    
+                    <div class="info-section">
+                        <h4>💻 Računar</h4>
+                        <div class="info-row">
+                            <span class="info-label">Ime računara:</span>
+                            <span class="info-value">${data.computerName}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4>⚡ Procesor</h4>
+                        <div class="info-row">
+                            <span class="info-label">Model:</span>
+                            <span class="info-value">${data.cpu.manufacturer} ${data.cpu.brand}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Brzina:</span>
+                            <span class="info-value">${data.cpu.speed} GHz</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Jezgra:</span>
+                            <span class="info-value">${data.cpu.cores} (${data.cpu.physicalCores} fizičkih)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4>💾 Memorija</h4>
+                        <div class="info-row">
+                            <span class="info-label">Ukupno:</span>
+                            <span class="info-value">${Math.round(data.memory.total / (1024*1024*1024))} GB</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Slobodno:</span>
+                            <span class="info-value">${Math.round(data.memory.free / (1024*1024*1024))} GB</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Iskorišteno:</span>
+                            <span class="info-value">${Math.round(data.memory.used / (1024*1024*1024))} GB</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h4>🖥️ Operativni sistem</h4>
+                        <div class="info-row">
+                            <span class="info-label">OS:</span>
+                            <span class="info-value">${data.os.distro} ${data.os.release}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Platforma:</span>
+                            <span class="info-value">${data.os.platform}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Arhitektura:</span>
+                            <span class="info-value">${data.os.arch}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error loading system info:', error);
+            document.getElementById('contentBody').innerHTML = `
+                <div class="tab-content">
+                    <h3>Greška</h3>
+                    <p>Nije moguće učitati informacije o sistemu: ${error.message}</p>
+                </div>
+            `;
+        }
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('Page loaded, initializing...');
+        
+        // Particle animation
+        initParticleAnimation();
+        
+        // Initial system preview
+        if (window.electronAPI && window.electronAPI.getSystemInfo) {
+            window.electronAPI.getSystemInfo().then(data => {
+                updateSystemPreview(data);
+            }).catch(err => {
+                console.error('Error loading initial data:', err);
+            });
+        }
+    });
+
+    // Particle animation
+    function initParticleAnimation() {
+        const canvas = document.getElementById('particleCanvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const particles = [];
+        const particleCount = 50;
+        
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                size: Math.random() * 3 + 1
+            });
+        }
+        
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(102, 126, 234, 0.3)';
+                ctx.fill();
+            });
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    }
+    </script>
 
     <script src="renderer.js"></script>
 </body>
