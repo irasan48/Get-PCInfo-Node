@@ -1,0 +1,196 @@
+/* Stilovi za rezultate - za HTML rezultate iz .exe datoteka */
+
+/* Resetiranje stilova za rezultate */
+.result-html * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Tablice */
+.result-html table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.result-html th,
+.result-html td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.result-html th {
+    background: rgba(74, 144, 226, 0.2);
+    color: #4a90e2;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.result-html tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.result-html tr:last-child td {
+    border-bottom: none;
+}
+
+/* Naslovi */
+.result-html h1,
+.result-html h2,
+.result-html h3,
+.result-html h4 {
+    color: #4a90e2;
+    margin: 20px 0 15px 0;
+}
+
+.result-html h1 {
+    font-size: 28px;
+    border-bottom: 2px solid #4a90e2;
+    padding-bottom: 10px;
+}
+
+.result-html h2 {
+    font-size: 24px;
+}
+
+.result-html h3 {
+    font-size: 20px;
+}
+
+/* Paragrafi i tekst */
+.result-html p {
+    margin: 10px 0;
+    line-height: 1.6;
+    color: #ccc;
+}
+
+.result-html strong {
+    color: #fff;
+}
+
+/* Liste */
+.result-html ul,
+.result-html ol {
+    margin: 10px 0;
+    padding-left: 30px;
+}
+
+.result-html li {
+    margin: 5px 0;
+    color: #ccc;
+}
+
+/* Linkovi */
+.result-html a {
+    color: #4a90e2;
+    text-decoration: none;
+}
+
+.result-html a:hover {
+    text-decoration: underline;
+}
+
+/* Preformatirani tekst */
+.result-html pre {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin: 15px 0;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.result-html code {
+    background: rgba(74, 144, 226, 0.2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px;
+}
+
+/* Status indikatori */
+.result-html .status-active,
+.result-html .status-enabled {
+    color: #10b981;
+}
+
+.result-html .status-inactive,
+.result-html .status-disabled {
+    color: #ef4444;
+}
+
+.result-html .status-warning {
+    color: #f59e0b;
+}
+
+/* Info kutije */
+.result-html .info-box {
+    background: rgba(74, 144, 226, 0.1);
+    border-left: 4px solid #4a90e2;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 5px 5px 0;
+}
+
+.result-html .warning-box {
+    background: rgba(245, 158, 11, 0.1);
+    border-left: 4px solid #f59e0b;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 5px 5px 0;
+}
+
+.result-html .error-box {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid #ef4444;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 5px 5px 0;
+}
+
+.result-html .success-box {
+    background: rgba(16, 185, 129, 0.1);
+    border-left: 4px solid #10b981;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 0 5px 5px 0;
+}
+
+/* Značke */
+.result-html .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 0 4px;
+}
+
+.result-html .badge-primary {
+    background: rgba(74, 144, 226, 0.2);
+    color: #4a90e2;
+}
+
+.result-html .badge-success {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.result-html .badge-warning {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.result-html .badge-danger {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
