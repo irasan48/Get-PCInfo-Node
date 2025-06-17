@@ -1,6 +1,8 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const path = require('path');
 const si = require('systeminformation');
+const fs = require('fs');
+const { exec } = require('child_process');
 
 let mainWindow;
 
@@ -13,14 +15,13 @@ function createWindow() {
             contextIsolation: true,
             nodeIntegration: false
         },
-        frame: false,  // <-- OVO MORATE DODATI!!!
+        frame: false,  // Uklanja dupli title bar
         autoHideMenuBar: true,
         backgroundColor: '#1e1e2e'
     });
 
     mainWindow.loadFile('index.html');
     
-    // Otvori DevTools u development modu
     if (process.env.NODE_ENV === 'development') {
         mainWindow.webContents.openDevTools();
     }
@@ -62,6 +63,159 @@ ipcMain.on('close-window', () => {
         mainWindow.close();
     }
 });
+
+// Mapa skripti sa nazivima tabova
+const scriptMap = {
+    'admin': 'Admin Group.exe',
+    'datum-kreiranja': 'Datum kreiranja korisničkih računa.exe',
+    'permissions': 'Folder Permissions.exe',
+    'grupe': 'Grupe sa korisnicima.exe',
+    'info': 'Info.exe',
+    'logiranja': 'Izlist logiranja i odjave korisnika.exe',
+    'usb': 'Korištenje USB uređaja.exe',
+    'lokalni-korisnici': 'Lokalni korisnički računi.exe',
+    'neaktivni': 'Neaktivni Korisnički računi.exe',
+    'obrisani': 'Obrisani Local Users_.exe',
+    'print': 'Printer Report.exe',
+    'serijski': 'Serial Number Report.exe',
+    'upravljanje': 'Upravljanje Korisnicima i grupama_run admin.exe'
+};
+
+// Handler za pokretanje PowerShell skripti
+ipcMain.handle('run-script', async (event, scriptName) => {
+    return new Promise((resolve, reject) => {
+        const scriptFile = scriptMap[scriptName];
+        if (!scriptFile) {
+            reject(new Error('Skripta nije pronađena'));
+            return;
+        }
+
+        const scriptPath = path.join(__dirname, 'scripts', scriptFile);
+        console.log('Pokrećem skriptu:', scriptPath);
+
+        // Provjeri da li skripta postoji
+        if (!fs.existsSync(scriptPath)) {
+            reject(new Error(`Skripta ne postoji: ${scriptPath}`));
+            return;
+        }
+
+        // Pokreni .exe fajl
+        exec(`"${scriptPath}"`, { 
+            encoding: 'utf8',
+            maxBuffer: 1024 * 1024 * 10 // 10MB buffer
+        }, (error, stdout, stderr) => {
+            if (error) {
+                console.error('Greška pri pokretanju skripte:', error);
+                reject(error);
+                return;
+            }
+
+            if (stderr) {
+                console.error('Stderr:', stderr);
+            }
+
+            // Pronađi HTML fajl koji je generisan
+            const tempPath = process.env.TEMP || process.env.TMP || '/tmp';
+            const htmlFiles = fs.readdirSync(tempPath)
+                .filter(file => file.endsWith('.html') && file.includes(scriptFile.replace('.exe', '')))
+                .map(file => ({
+                    name: file,
+                    path: path.join(tempPath, file),
+                    time: fs.statSync(path.join(tempPath, file)).mtime.getTime()
+                }))
+                .sort((a, b) => b.time - a.time);
+
+            if (htmlFiles.length > 0) {
+                // Učitaj najnoviji HTML fajl
+                const htmlContent = fs.readFileSync(htmlFiles[0].path, 'utf8');
+                resolve(htmlContent);
+            } else {
+                // Ako nema HTML fajla, vrati stdout
+                resolve(stdout || '<p>Skripta je izvršena ali nema rezultata.</p>');
+            }
+        });
+    });
+});
+
+// Export handlers
+ipcMain.handle('export-data', async (event, { format, content, filename }) => {
+    let filters = [];
+    switch (format) {
+        case 'txt':
+            filters = [{ name: 'Text Files', extensions: ['txt'] }];
+            break;
+        case 'html':
+            filters = [{ name: 'HTML Files', extensions: ['html'] }];
+            break;
+        case 'csv':
+            filters = [{ name: 'CSV Files', extensions: ['csv'] }];
+            break;
+        case 'pdf':
+            filters = [{ name: 'PDF Files', extensions: ['pdf'] }];
+            break;
+    }
+
+    const result = await dialog.showSaveDialog(mainWindow, {
+        defaultPath: filename,
+        filters: filters
+    });
+
+    if (!result.canceled) {
+        try {
+            if (format === 'pdf') {
+                // Za PDF koristimo Electron's printToPDF
+                const pdfData = await mainWindow.webContents.printToPDF({
+                    printBackground: true,
+                    landscape: false
+                });
+                fs.writeFileSync(result.filePath, pdfData);
+            } else if (format === 'txt') {
+                // Konvertuj HTML u plain text
+                const plainText = content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+                fs.writeFileSync(result.filePath, plainText);
+            } else if (format === 'csv') {
+                // Ekstraktuj tabele iz HTML-a i konvertuj u CSV
+                const csv = extractTablesAsCSV(content);
+                fs.writeFileSync(result.filePath, csv);
+            } else {
+                // Za HTML, sačuvaj direktno
+                fs.writeFileSync(result.filePath, content);
+            }
+            return { success: true, path: result.filePath };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    }
+    return { success: false, error: 'Cancelled' };
+});
+
+// Print handler
+ipcMain.handle('print-content', async () => {
+    mainWindow.webContents.print({
+        silent: false,
+        printBackground: true
+    });
+});
+
+// Helper funkcija za ekstraktovanje tabela kao CSV
+function extractTablesAsCSV(html) {
+    const tables = html.match(/<table[^>]*>[\s\S]*?<\/table>/gi) || [];
+    let csv = '';
+    
+    tables.forEach(table => {
+        const rows = table.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
+        rows.forEach(row => {
+            const cells = row.match(/<t[hd][^>]*>[\s\S]*?<\/t[hd]>/gi) || [];
+            const values = cells.map(cell => 
+                cell.replace(/<[^>]*>/g, '').trim().replace(/"/g, '""')
+            );
+            csv += '"' + values.join('","') + '"\n';
+        });
+        csv += '\n';
+    });
+    
+    return csv;
+}
 
 // IPC handler za dobijanje informacija o sistemu
 ipcMain.handle('get-system-info', async () => {
