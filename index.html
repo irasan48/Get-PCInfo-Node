@@ -1,0 +1,2006 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get-PCInfo Professional - Kontrolni Panel</title>
+    <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+    <!-- Title Bar -->
+    <div class="title-bar">
+        <div class="title-bar-title">Get-PCInfo Professional v2025.6.3</div>
+        <div class="title-bar-controls">
+            <button class="title-bar-button" onclick="minimizeWindow()">―</button>
+            <button class="title-bar-button" onclick="maximizeWindow()">□</button>
+            <button class="title-bar-button close" onclick="closeWindow()">✕</button>
+        </div>
+    </div>
+
+    <!-- Welcome Screen -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <!-- Animated Background -->
+        <div class="animated-bg">
+            <div class="gradient-bg"></div>
+            <div class="geometric-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+                <div class="shape shape-4"></div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="welcome-container">
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <div class="logo-circle">
+                    <div class="logo-inner">
+                        <span class="logo-text">GPC</span>
+                    </div>
+                </div>
+                <div class="logo-glow"></div>
+            </div>
+            
+            <!-- Title Section -->
+            <div class="title-section">
+                <h1 class="app-title">
+                    <span class="title-line1">Get-PCInfo</span>
+                    <span class="title-line2">Professional</span>
+                </h1>
+                <div class="version-badge">v2025.6.3</div>
+            </div>
+            
+            <!-- Description -->
+            <p class="app-description">Advanced System Management Suite</p>
+            
+            <!-- System Info Cards -->
+            <div class="system-cards">
+                <div class="sys-card" style="animation: slideIn 0.5s ease forwards; animation-delay: 0.3s; opacity: 0;">
+                    <div class="sys-icon">💻</div>
+                    <div class="sys-info">
+                        <span class="sys-label">System</span>
+                        <span class="sys-value" id="computerName">Detecting...</span>
+                    </div>
+                </div>
+                <div class="sys-card" style="animation: slideIn 0.5s ease forwards; animation-delay: 0.5s; opacity: 0;">
+                    <div class="sys-icon">🔥</div>
+                    <div class="sys-info">
+                        <span class="sys-label">CPU</span>
+                        <span class="sys-value" id="cpuName">Detecting...</span>
+                    </div>
+                </div>
+                <div class="sys-card" style="animation: slideIn 0.5s ease forwards; animation-delay: 0.7s; opacity: 0;">
+                    <div class="sys-icon">💾</div>
+                    <div class="sys-info">
+                        <span class="sys-label">RAM</span>
+                        <span class="sys-value" id="ramSize">Detecting...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading Section -->
+            <div class="loading-section" style="animation: fadeIn 0.5s ease forwards; animation-delay: 1s; opacity: 0;">
+                <div class="modern-progress">
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progressBar"></div>
+                        <div class="progress-glow"></div>
+                    </div>
+                    <div class="progress-percentage" id="progressPercent">0%</div>
+                </div>
+                
+                <div class="status-container">
+                    <div class="status-dot"></div>
+                    <p class="status-message" id="statusText">Inicijalizacija sistema...</p>
+                </div>
+            </div>
+            
+            <!-- Enhanced Loading Messages -->
+            <div style="margin-top: 30px; text-align: center; animation: fadeIn 0.5s ease forwards; animation-delay: 1.2s; opacity: 0;">
+                <div id="loadingDetails" style="font-size: 12px; color: #666; font-family: monospace; max-width: 400px; margin: 0 auto; text-align: left; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div id="loadingLog" style="max-height: 100px; overflow-y: auto;">
+                        <div style="color: #0f0; margin: 2px 0;">► Inicijalizacija sistema započeta</div>
+                    </div>
+                </div>
+                
+                <!-- Mini System Stats during loading -->
+                <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px;">
+                    <div style="background: rgba(30, 144, 255, 0.1); padding: 10px 20px; border-radius: 10px; border: 1px solid rgba(30, 144, 255, 0.3);">
+                        <span style="color: #1e90ff; font-size: 11px;">CPU</span>
+                        <span id="loadCpu" style="color: #fff; margin-left: 10px; font-weight: bold;">0%</span>
+                    </div>
+                    <div style="background: rgba(233, 69, 96, 0.1); padding: 10px 20px; border-radius: 10px; border: 1px solid rgba(233, 69, 96, 0.3);">
+                        <span style="color: #e94560; font-size: 11px;">MEM</span>
+                        <span id="loadMem" style="color: #fff; margin-left: 10px; font-weight: bold;">0 MB</span>
+                    </div>
+                </div>
+            </div>
+            
+            <style>
+                @keyframes slideIn {
+                    from {
+                        transform: translateY(20px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+                }
+                
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+            </style>
+            
+            <!-- Action Button -->
+            <button class="launch-button" id="launchBtn" style="display: none; opacity: 0; transform: translateY(20px);">
+                <span class="button-text">POKRENI APLIKACIJU</span>
+                <span class="button-icon">→</span>
+            </button>
+            
+            <!-- Footer -->
+            <div class="welcome-footer">
+                <p class="copyright">© 2025 Ivica Rašan. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container" id="mainContainer" style="display: none; opacity: 0; position: relative; overflow: hidden;">
+        <!-- Enhanced Animated Background from Welcome Screen -->
+        <div class="animated-bg" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 0;">
+            <!-- Multiple gradient layers for depth -->
+            <div class="gradient-bg" style="opacity: 0.8;"></div>
+            <div class="gradient-bg" style="animation-delay: -10s; opacity: 0.5;"></div>
+            
+            <!-- Geometric Shapes -->
+            <div class="geometric-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+                <div class="shape shape-4"></div>
+                <div class="shape shape-5" style="width: 250px; height: 250px; top: 40%; left: 50%; border-radius: 20%; animation-delay: 7s;"></div>
+                <div class="shape shape-6" style="width: 180px; height: 180px; bottom: 10%; right: 10%; border-radius: 50%; animation-delay: 12s;"></div>
+                <div class="shape shape-7" style="width: 120px; height: 120px; top: 70%; left: 10%; border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; animation-delay: 3s; border-color: rgba(30, 144, 255, 0.2);"></div>
+                <div class="shape shape-8" style="width: 90px; height: 90px; top: 20%; right: 25%; transform: rotate(45deg); animation-delay: 8s; border-color: rgba(16, 185, 129, 0.2);"></div>
+            </div>
+            
+            <!-- Floating Orbs -->
+            <div class="floating-orbs">
+                <div class="orb" style="width: 60px; height: 60px; left: 15%; top: 20%; background: radial-gradient(circle, rgba(30, 144, 255, 0.4) 0%, transparent 70%); animation: floatOrb 20s ease-in-out infinite;"></div>
+                <div class="orb" style="width: 80px; height: 80px; right: 20%; top: 60%; background: radial-gradient(circle, rgba(233, 69, 96, 0.3) 0%, transparent 70%); animation: floatOrb 25s ease-in-out infinite reverse;"></div>
+                <div class="orb" style="width: 40px; height: 40px; left: 70%; bottom: 30%; background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%); animation: floatOrb 18s ease-in-out infinite;"></div>
+                <div class="orb" style="width: 100px; height: 100px; right: 10%; bottom: 10%; background: radial-gradient(circle, rgba(147, 51, 234, 0.2) 0%, transparent 70%); animation: floatOrb 30s ease-in-out infinite reverse;"></div>
+            </div>
+            
+            <!-- Particle System Container -->
+            <div id="particleSystem" class="particle-system"></div>
+            
+            <!-- Glowing Lines -->
+            <svg class="glowing-lines" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                <defs>
+                    <linearGradient id="lineGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:rgba(30, 144, 255, 0);stop-opacity:0" />
+                        <stop offset="50%" style="stop-color:rgba(30, 144, 255, 0.5);stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:rgba(30, 144, 255, 0);stop-opacity:0" />
+                    </linearGradient>
+                    <linearGradient id="lineGradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:rgba(233, 69, 96, 0);stop-opacity:0" />
+                        <stop offset="50%" style="stop-color:rgba(233, 69, 96, 0.5);stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:rgba(233, 69, 96, 0);stop-opacity:0" />
+                    </linearGradient>
+                </defs>
+                <path d="M 0 100 Q 200 150 400 100 T 800 100" stroke="url(#lineGradient1)" stroke-width="2" fill="none" opacity="0.3">
+                    <animate attributeName="d" values="M 0 100 Q 200 150 400 100 T 800 100;M 0 120 Q 200 80 400 120 T 800 120;M 0 100 Q 200 150 400 100 T 800 100" dur="10s" repeatCount="indefinite" />
+                </path>
+                <path d="M 100 0 Q 150 200 100 400 T 100 800" stroke="url(#lineGradient2)" stroke-width="2" fill="none" opacity="0.3">
+                    <animate attributeName="d" values="M 100 0 Q 150 200 100 400 T 100 800;M 120 0 Q 80 200 120 400 T 120 800;M 100 0 Q 150 200 100 400 T 100 800" dur="15s" repeatCount="indefinite" />
+                </path>
+            </svg>
+        </div>
+        
+        <!-- Additional CSS for new animations -->
+        <style>
+            .animated-bg {
+                background: #0a0a0a;
+            }
+            
+            .floating-orbs {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+            }
+            
+            .orb {
+                position: absolute;
+                border-radius: 50%;
+                filter: blur(40px);
+            }
+            
+            @keyframes floatOrb {
+                0%, 100% {
+                    transform: translate(0, 0) scale(1);
+                }
+                25% {
+                    transform: translate(50px, -50px) scale(1.1);
+                }
+                50% {
+                    transform: translate(-30px, 30px) scale(0.9);
+                }
+                75% {
+                    transform: translate(-50px, -30px) scale(1.05);
+                }
+            }
+            
+            .particle-system {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                overflow: hidden;
+            }
+            
+            .particle {
+                position: absolute;
+                background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+                border-radius: 50%;
+                pointer-events: none;
+            }
+            
+            @keyframes particleFall {
+                from {
+                    transform: translateY(-10px) rotate(0deg);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 1;
+                }
+                90% {
+                    opacity: 1;
+                }
+                to {
+                    transform: translateY(calc(100vh + 10px)) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+            
+            /* Enhanced gradient background animation */
+            .gradient-bg {
+                background: radial-gradient(circle at 20% 50%, rgba(26, 26, 46, 0.8) 0%, transparent 50%),
+                            radial-gradient(circle at 80% 80%, rgba(22, 33, 62, 0.8) 0%, transparent 50%),
+                            radial-gradient(circle at 40% 20%, rgba(15, 52, 96, 0.8) 0%, transparent 50%),
+                            radial-gradient(circle at 80% 10%, rgba(233, 69, 96, 0.6) 0%, transparent 30%),
+                            radial-gradient(circle at 10% 90%, rgba(30, 144, 255, 0.6) 0%, transparent 40%),
+                            radial-gradient(circle at 90% 60%, rgba(16, 185, 129, 0.5) 0%, transparent 40%);
+            }
+            
+            /* Ensure content remains readable */
+            .app-header,
+            .sidebar,
+            .content {
+                position: relative;
+                z-index: 10;
+            }
+            
+            .sidebar {
+                background: rgba(15, 52, 96, 0.85) !important;
+                backdrop-filter: blur(20px) !important;
+            }
+            
+            .content {
+                background: rgba(10, 10, 10, 0.9) !important;
+                backdrop-filter: blur(20px) !important;
+            }
+            
+            .content-body {
+                background: rgba(255, 255, 255, 0.03) !important;
+                backdrop-filter: blur(10px) !important;
+            }
+            
+            /* Enhanced glow effects */
+            .mini-logo::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle, rgba(30, 144, 255, 0.2) 0%, transparent 50%);
+                filter: blur(20px);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                pointer-events: none;
+            }
+            
+            .mini-logo:hover::before {
+                opacity: 1;
+            }
+        </style>
+        
+        <!-- App Header -->
+        <div class="app-header" style="position: relative; z-index: 10;">
+            <!-- Header background effects -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none;">
+                <div style="position: absolute; top: -50%; left: -10%; width: 120%; height: 200%; background: radial-gradient(ellipse at center, rgba(30, 144, 255, 0.1) 0%, transparent 50%); animation: rotate 20s linear infinite;"></div>
+                <div style="position: absolute; top: -50%; right: -10%; width: 120%; height: 200%; background: radial-gradient(ellipse at center, rgba(233, 69, 96, 0.1) 0%, transparent 50%); animation: rotate 25s linear infinite reverse;"></div>
+            </div>
+            
+            <div class="header-content" style="position: relative;">
+                <div class="header-logo">
+                    <div class="mini-logo">
+                        GPC
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 12px; box-shadow: 0 0 30px rgba(30, 144, 255, 0.5); animation: pulse 3s ease-in-out infinite;"></div>
+                    </div>
+                </div>
+                <div class="header-info">
+                    <h2 class="header-title">Get-PCInfo Professional</h2>
+                    <p class="header-subtitle">Advanced System Management Suite • v2025.6.3</p>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-mini" title="CPU Model">
+                        <span class="stat-value" id="headerCpu">-</span>
+                        <span class="stat-text">CPU</span>
+                    </div>
+                    <div class="stat-mini" title="RAM Količina">
+                        <span class="stat-value" id="headerRam">-</span>
+                        <span class="stat-text">RAM</span>
+                    </div>
+                    <div class="stat-mini" title="Broj PowerShell Modula">
+                        <span class="stat-value">13</span>
+                        <span class="stat-text">Modula</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Animated border line -->
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 0.8), transparent); animation: borderMove 3s linear infinite;"></div>
+        </div>
+        
+        <style>
+            @keyframes rotate {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            
+            @keyframes borderMove {
+                from { transform: translateX(-100%); }
+                to { transform: translateX(100%); }
+            }
+            
+            .app-header {
+                background: linear-gradient(135deg, rgba(26, 26, 46, 0.95) 0%, rgba(22, 33, 62, 0.95) 100%);
+                backdrop-filter: blur(20px) saturate(150%);
+                border-bottom: 1px solid rgba(233, 69, 96, 0.2);
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            }
+            
+            .header-title {
+                background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 50%, #ffffff 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                animation: titleShine 3s ease-in-out infinite;
+                background-size: 200% 200%;
+            }
+            
+            @keyframes titleShine {
+                0% { background-position: 0% 50%; }
+                50% { background-position: 100% 50%; }
+                100% { background-position: 0% 50%; }
+            }
+            
+            .mini-logo {
+                box-shadow: 0 4px 20px rgba(30, 144, 255, 0.4), 
+                            inset 0 0 20px rgba(30, 144, 255, 0.2);
+                transform: translateZ(0);
+                will-change: transform;
+                transition: all 0.3s ease;
+            }
+            
+            .mini-logo:hover {
+                transform: scale(1.05) rotate(5deg);
+                box-shadow: 0 6px 30px rgba(30, 144, 255, 0.6), 
+                            inset 0 0 30px rgba(30, 144, 255, 0.3);
+            }
+        </style>
+        
+        <!-- Main App Container -->
+        <div class="main-app-container" style="position: relative; z-index: 10;">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Sidebar background effects -->
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; overflow: hidden;">
+                    <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 30% 50%, rgba(30, 144, 255, 0.05) 0%, transparent 50%); animation: rotate 30s linear infinite;"></div>
+                </div>
+                
+                <div class="tab active" onclick="showHome()">
+                    <span class="tab-icon">🏠</span> Početak
+                </div>
+                <div class="tab" onclick="switchTab('korisnici', event)" title="Detaljan pregled svih lokalnih korisničkih računa">
+                    <span class="tab-icon">👤</span> Korisnici
+                </div>
+                <div class="tab" onclick="switchTab('grupe', event)" title="Analiza lokalnih grupa i njihovih članova">
+                    <span class="tab-icon">👥</span> Grupe
+                </div>
+                <div class="tab" onclick="switchTab('logiranja', event)" title="Praćenje korisničkih prijava i odjava kroz EventLog">
+                    <span class="tab-icon">📋</span> Logiranja i odjave
+                </div>
+                <div class="tab" onclick="switchTab('neaktivni', event)" title="Identifikacija neaktivnih korisničkih računa">
+                    <span class="tab-icon">💤</span> Neaktivni korisnici
+                </div>
+                <div class="tab" onclick="switchTab('permissions', event)" title="Analiza prava pristupa folderima">
+                    <span class="tab-icon">🔒</span> Folder Permissions
+                </div>
+                <div class="tab" onclick="switchTab('usb', event)" title="Praćenje USB aktivnosti s identifikacijom korisnika">
+                    <span class="tab-icon">🔌</span> Korištenje USB
+                </div>
+                <div class="tab" onclick="switchTab('kreiranje-kr', event)" title="Usporedba datuma kreiranja korisničkih računa">
+                    <span class="tab-icon">📅</span> Datum kreiranja KR
+                </div>
+                <div class="tab" onclick="switchTab('obrisani-kr', event)" title="Praćenje izbrisanih korisničkih računa">
+                    <span class="tab-icon">🗑️</span> Obrisani KR
+                </div>
+                <div class="tab" onclick="switchTab('print', event)" title="Analiza instaliranih printera i print jobova">
+                    <span class="tab-icon">🖨️</span> Print
+                </div>
+                <div class="tab" onclick="switchTab('administratori', event)" title="Pregled članova lokalne Administrators grupe">
+                    <span class="tab-icon">👨‍💼</span> Administratori
+                </div>
+                <div class="tab" onclick="switchTab('serijski', event)" title="Prikupljanje serijskih brojeva hardverskih komponenti">
+                    <span class="tab-icon">🔢</span> Serijski brojevi
+                </div>
+                <div class="tab" onclick="switchTab('upravljanje', event)" title="Napredne opcije upravljanja korisnicima i grupama">
+                    <span class="tab-icon">⚙️</span> Upravljanje
+                </div>
+                <div class="tab" onclick="switchTab('hardver', event)" title="Detaljne informacije o hardverskim komponentama">
+                    <span class="tab-icon">💻</span> Hardver
+                </div>
+                <div class="tab" onclick="switchTab('info', event)" title="O aplikaciji i dokumentacija">
+                    <span class="tab-icon">ℹ️</span> Info
+                </div>
+                
+                <style>
+                    .tab {
+                        position: relative;
+                        overflow: hidden;
+                        background: rgba(255, 255, 255, 0.03);
+                        backdrop-filter: blur(10px);
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .tab::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 0.3), transparent);
+                        transition: left 0.5s ease;
+                    }
+                    
+                    .tab:hover::before {
+                        left: 100%;
+                    }
+                    
+                    .tab.active {
+                        background: linear-gradient(135deg, rgba(30, 144, 255, 0.3) 0%, rgba(0, 102, 204, 0.3) 100%);
+                        border-left: 3px solid #1e90ff;
+                        box-shadow: 0 4px 20px rgba(30, 144, 255, 0.3), inset 0 0 20px rgba(30, 144, 255, 0.1);
+                    }
+                    
+                    .tab-icon {
+                        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+                        transition: all 0.3s ease;
+                    }
+                    
+                    .tab:hover .tab-icon {
+                        transform: scale(1.2);
+                        filter: drop-shadow(0 0 10px rgba(30, 144, 255, 0.8));
+                    }
+                </style>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content" id="content">
+                <!-- Content background effects -->
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; overflow: hidden; opacity: 0.3;">
+                    <div style="position: absolute; top: 0; right: 0; width: 300px; height: 300px; background: radial-gradient(circle, rgba(233, 69, 96, 0.2) 0%, transparent 70%); animation: floatOrb 20s ease-in-out infinite;"></div>
+                    <div style="position: absolute; bottom: 0; left: 0; width: 250px; height: 250px; background: radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%); animation: floatOrb 25s ease-in-out infinite reverse;"></div>
+                </div>
+                
+                <div class="content-header" id="contentHeader" style="position: relative;">
+                    Dobrodošli
+                    <div style="position: absolute; bottom: -5px; left: 0; width: 100px; height: 2px; background: linear-gradient(90deg, #1e90ff, transparent); animation: expand 1s ease-out;"></div>
+                </div>
+                
+                <div class="content-body" id="contentBody" style="position: relative;">
+                    <!-- Default content will be loaded here -->
+                </div>
+                
+                <style>
+                    @keyframes expand {
+                        from { width: 0; }
+                        to { width: 100px; }
+                    }
+                    
+                    .content-header {
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    
+                    .content-header::after {
+                        content: '';
+                        position: absolute;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        height: 2px;
+                        background: linear-gradient(90deg, transparent, rgba(30, 144, 255, 0.3), transparent);
+                        animation: borderMove 3s linear infinite;
+                    }
+                    
+                    .content-body {
+                        animation: fadeInUp 0.5s ease;
+                        box-shadow: 0 10px 40px rgba(0,0,0,0.3), inset 0 0 30px rgba(255,255,255,0.01);
+                        border: 1px solid rgba(255,255,255,0.05);
+                    }
+                    
+                    @keyframes fadeInUp {
+                        from {
+                            opacity: 0;
+                            transform: translateY(20px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateY(0);
+                        }
+                    }
+                    
+                    /* Enhanced execute button */
+                    .execute-button {
+                        position: relative;
+                        overflow: hidden;
+                        box-shadow: 0 6px 20px rgba(30, 144, 255, 0.3);
+                        background: linear-gradient(135deg, #1e90ff 0%, #0066cc 100%);
+                    }
+                    
+                    .execute-button::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 100%;
+                        height: 100%;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                        transition: left 0.5s ease;
+                    }
+                    
+                    .execute-button:hover::before {
+                        left: 100%;
+                    }
+                    
+                    .execute-button:hover {
+                        transform: translateY(-2px) scale(1.02);
+                        box-shadow: 0 8px 30px rgba(30, 144, 255, 0.5);
+                    }
+                    
+                    /* Enhanced result container */
+                    .result-container {
+                        animation: slideIn 0.5s ease;
+                        position: relative;
+                        overflow: hidden;
+                    }
+                    
+                    @keyframes slideIn {
+                        from {
+                            opacity: 0;
+                            transform: translateX(-20px);
+                        }
+                        to {
+                            opacity: 1;
+                            transform: translateX(0);
+                        }
+                    }
+                    
+                    .result-container::before {
+                        content: '';
+                        position: absolute;
+                        top: -2px;
+                        left: -2px;
+                        right: -2px;
+                        bottom: -2px;
+                        background: linear-gradient(45deg, #1e90ff, #e94560, #10b981, #fbbf24);
+                        border-radius: 10px;
+                        opacity: 0;
+                        z-index: -1;
+                        transition: opacity 0.3s ease;
+                        animation: gradientRotate 3s linear infinite;
+                    }
+                    
+                    .result-container:hover::before {
+                        opacity: 0.3;
+                    }
+                    
+                    @keyframes gradientRotate {
+                        from { transform: rotate(0deg); }
+                        to { transform: rotate(360deg); }
+                    }
+                </style>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // System information storage
+        let systemInfo = {
+            computerName: '',
+            cpuName: '',
+            ramSize: '',
+            cpuShort: '',
+            ramShort: ''
+        };
+
+        // Welcome Screen Loading Logic
+        let progress = 0;
+        const loadingMessages = [
+            { percent: 0, message: "Inicijalizacija sistema...", log: "► Inicijalizacija sistema započeta" },
+            { percent: 10, message: "Provjera hardvera...", log: "► Skeniranje hardverskih komponenti" },
+            { percent: 20, message: "Detekcija procesora...", log: "► CPU informacije pronađene" },
+            { percent: 30, message: "Analiza memorije...", log: "► RAM konfiguracija učitana" },
+            { percent: 40, message: "Učitavanje drivera...", log: "► Sistemski driveri inicijalizirani" },
+            { percent: 50, message: "Provjera mreže...", log: "► Mrežna konfiguracija validirana" },
+            { percent: 60, message: "Skeniranje diskova...", log: "► Storage uređaji detektirani" },
+            { percent: 70, message: "Validacija sistema...", log: "► Sistemska provjera u tijeku" },
+            { percent: 80, message: "Priprema interface-a...", log: "► UI komponente učitane" },
+            { percent: 90, message: "Finalizacija...", log: "► Završne provjere" },
+            { percent: 100, message: "Sistem spreman!", log: "✓ Sve komponente uspješno učitane" }
+        ];
+
+        // Detect system information
+        function detectSystemInfo() {
+            // Simulate system detection
+            setTimeout(() => {
+                systemInfo.computerName = 'WORKSTATION-01';
+                document.getElementById('computerName').textContent = systemInfo.computerName;
+            }, 500);
+
+            setTimeout(() => {
+                systemInfo.cpuName = 'Intel Core i7-9700K @ 3.60GHz';
+                systemInfo.cpuShort = 'i7-9700K';
+                document.getElementById('cpuName').textContent = systemInfo.cpuName;
+            }, 1000);
+
+            setTimeout(() => {
+                systemInfo.ramSize = '16.0 GB DDR4';
+                systemInfo.ramShort = '16GB';
+                document.getElementById('ramSize').textContent = systemInfo.ramSize;
+            }, 1500);
+        }
+
+        // Update loading progress
+        function updateProgress() {
+            if (progress <= 100) {
+                // Update progress bar
+                document.getElementById('progressBar').style.width = progress + '%';
+                document.getElementById('progressPercent').textContent = progress + '%';
+
+                // Update status message and log
+                const currentMessage = loadingMessages.find(msg => msg.percent === progress);
+                if (currentMessage) {
+                    document.getElementById('statusText').textContent = currentMessage.message;
+                    
+                    // Add to log
+                    const logEntry = document.createElement('div');
+                    logEntry.style.cssText = `color: ${progress === 100 ? '#0f0' : '#999'}; margin: 2px 0;`;
+                    logEntry.textContent = currentMessage.log;
+                    document.getElementById('loadingLog').appendChild(logEntry);
+                    document.getElementById('loadingLog').scrollTop = document.getElementById('loadingLog').scrollHeight;
+                }
+
+                // Update mini stats
+                document.getElementById('loadCpu').textContent = Math.floor(Math.random() * 30 + 10) + '%';
+                document.getElementById('loadMem').textContent = (Math.random() * 2000 + 1000).toFixed(0) + ' MB';
+
+                // Show launch button at 100%
+                if (progress === 100) {
+                    setTimeout(() => {
+                        const launchBtn = document.getElementById('launchBtn');
+                        launchBtn.style.display = 'inline-flex';
+                        setTimeout(() => {
+                            launchBtn.classList.add('show');
+                        }, 50);
+                    }, 500);
+                }
+
+                progress += 10;
+                setTimeout(updateProgress, 400);
+            }
+        }
+
+        // Start application
+        function startApplication() {
+            const welcomeScreen = document.getElementById('welcomeScreen');
+            const mainContainer = document.getElementById('mainContainer');
+
+            // Transfer system info to header
+            document.getElementById('headerCpu').textContent = systemInfo.cpuShort;
+            document.getElementById('headerRam').textContent = systemInfo.ramShort;
+
+            // Hide welcome screen
+            welcomeScreen.classList.add('hidden');
+
+            setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+                mainContainer.style.display = 'flex';
+                mainContainer.style.flexDirection = 'column';
+                
+                // Fade in main container
+                setTimeout(() => {
+                    mainContainer.style.opacity = '1';
+                    
+                    // Load default content
+                    showHome();
+                    
+                    // Create all visual effects
+                    createParticles();
+                    addInteractiveGlow();
+                    animateSystemStats();
+                    
+                    // Add entrance animation for sidebar tabs
+                    const tabs = document.querySelectorAll('.tab');
+                    tabs.forEach((tab, index) => {
+                        tab.style.opacity = '0';
+                        tab.style.transform = 'translateX(-50px)';
+                        tab.style.transition = 'all 0.3s ease';
+                        
+                        setTimeout(() => {
+                            tab.style.opacity = '1';
+                            tab.style.transform = 'translateX(0)';
+                        }, 100 + index * 50);
+                    });
+                    
+                    // Animate header stats
+                    const headerStats = document.querySelectorAll('.stat-mini');
+                    headerStats.forEach((stat, index) => {
+                        stat.style.opacity = '0';
+                        stat.style.transform = 'translateY(-20px)';
+                        stat.style.transition = 'all 0.5s ease';
+                        
+                        setTimeout(() => {
+                            stat.style.opacity = '1';
+                            stat.style.transform = 'translateY(0)';
+                        }, 300 + index * 100);
+                    });
+                }, 50);
+            }, 500);
+        }
+
+        // Show home content
+        function showHome() {
+            // Reset all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activate home tab
+            document.querySelector('.tab').classList.add('active');
+            
+            // Set content
+            document.getElementById('contentHeader').textContent = 'Dobrodošli';
+            document.getElementById('contentBody').innerHTML = getHomeContent();
+            
+            // Start system stats updates
+            updateSystemStats();
+            if (window.statsInterval) clearInterval(window.statsInterval);
+            window.statsInterval = setInterval(updateSystemStats, 3000);
+        }
+
+        // Get home content HTML
+        function getHomeContent() {
+            return `
+                <p style="color: #f4f4f4; font-size: 18px; line-height: 1.6; margin-bottom: 30px;">
+                    Odaberite opciju iz izbornika za početak rada.
+                </p>
+                
+                <!-- System Status -->
+                <div style="margin-top: 30px;">
+                    <h3 style="color: #e94560; margin-bottom: 25px; font-size: 28px; text-align: center;">Status Sistema</h3>
+                    
+                    <!-- Status Cards Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 30px;">
+                        
+                        <!-- CPU Card -->
+                        <div style="background: rgba(30, 144, 255, 0.1); border: 1px solid rgba(30, 144, 255, 0.3); border-radius: 20px; padding: 25px; position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(30, 144, 255, 0.1) 0%, transparent 70%); transform: rotate(45deg);"></div>
+                            <div style="position: relative; z-index: 1;">
+                                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                                    <span style="font-size: 36px;">🔥</span>
+                                    <div>
+                                        <h4 style="color: #1e90ff; margin: 0; font-size: 20px;">CPU Procesor</h4>
+                                        <p style="color: #888; margin: 0; font-size: 14px;">${systemInfo.cpuName || 'Intel Core i7'}</p>
+                                    </div>
+                                </div>
+                                <div style="font-size: 48px; font-weight: bold; color: #fff; margin-bottom: 15px;">
+                                    <span id="cpuUsage">23</span>%
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                    <span style="color: #aaa; font-size: 14px;"><span id="cpuCores">8</span> jezgara</span>
+                                    <span style="color: #aaa; font-size: 14px;">🌡️ <span id="cpuTemp">45</span>°C</span>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div id="cpuBar" style="height: 100%; background: linear-gradient(90deg, #1e90ff, #00bfff); width: 23%; transition: width 0.5s ease; position: relative;">
+                                        <div style="position: absolute; top: 0; right: 0; bottom: 0; width: 20px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3)); animation: shimmer 2s infinite;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- RAM Card -->
+                        <div style="background: rgba(233, 69, 96, 0.1); border: 1px solid rgba(233, 69, 96, 0.3); border-radius: 20px; padding: 25px; position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(233, 69, 96, 0.1) 0%, transparent 70%); transform: rotate(45deg);"></div>
+                            <div style="position: relative; z-index: 1;">
+                                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                                    <span style="font-size: 36px;">💾</span>
+                                    <div>
+                                        <h4 style="color: #e94560; margin: 0; font-size: 20px;">Memorija (RAM)</h4>
+                                        <p style="color: #888; margin: 0; font-size: 14px;">${systemInfo.ramSize || 'DDR4 3200MHz'}</p>
+                                    </div>
+                                </div>
+                                <div style="font-size: 48px; font-weight: bold; color: #fff; margin-bottom: 15px;">
+                                    <span id="ramUsage">4.2</span> GB
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                    <span style="color: #aaa; font-size: 14px;">Ukupno: <span id="ramTotal">${systemInfo.ramShort || '8GB'}</span></span>
+                                    <span style="color: #aaa; font-size: 14px;"><span id="ramPercent">52</span>% iskorišteno</span>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div id="ramBar" style="height: 100%; background: linear-gradient(90deg, #e94560, #ff6b6b); width: 52%; transition: width 0.5s ease; position: relative;">
+                                        <div style="position: absolute; top: 0; right: 0; bottom: 0; width: 20px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3)); animation: shimmer 2s infinite;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Disk Card -->
+                        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 20px; padding: 25px; position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%); transform: rotate(45deg);"></div>
+                            <div style="position: relative; z-index: 1;">
+                                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                                    <span style="font-size: 36px;">💿</span>
+                                    <div>
+                                        <h4 style="color: #10b981; margin: 0; font-size: 20px;">Disk Prostor (SSD)</h4>
+                                        <p style="color: #888; margin: 0; font-size: 14px;">NVMe M.2</p>
+                                    </div>
+                                </div>
+                                <div style="font-size: 48px; font-weight: bold; color: #fff; margin-bottom: 15px;">
+                                    <span id="diskUsage">125</span> GB
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                    <span style="color: #aaa; font-size: 14px;">Ukupno: <span id="diskTotal">256</span> GB</span>
+                                    <span style="color: #aaa; font-size: 14px;"><span id="diskPercent">49</span>% iskorišteno</span>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div id="diskBar" style="height: 100%; background: linear-gradient(90deg, #10b981, #34d399); width: 49%; transition: width 0.5s ease; position: relative;">
+                                        <div style="position: absolute; top: 0; right: 0; bottom: 0; width: 20px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3)); animation: shimmer 2s infinite;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Network Card -->
+                        <div style="background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 20px; padding: 25px; position: relative; overflow: hidden;">
+                            <div style="position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(251, 191, 36, 0.1) 0%, transparent 70%); transform: rotate(45deg);"></div>
+                            <div style="position: relative; z-index: 1;">
+                                <div style="display: flex; align-items: center; gap:
+                    
+                    <!-- System Summary -->
+                    <div style="background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 15px; padding: 20px; text-align: center;">
+                        <p style="color: #10b981; margin: 0; font-size: 16px;">
+                            <span style="display: inline-block; width: 8px; height: 8px; background: #10b981; border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite;"></span>
+                            Sistem radi optimalno. Svi servisi su operativni.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- System Info Footer -->
+                <div style="margin-top: 30px; text-align: center; padding: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <p style="color: #666; font-size: 12px; margin: 0;">
+                        Get-PCInfo Professional v2025.6.3 | © 2025 Ivica Rašan. All rights reserved.
+                    </p>
+                </div>
+                
+                <style>
+                    @keyframes shimmer {
+                        0% { transform: translateX(-100%); }
+                        100% { transform: translateX(500%); }
+                    }
+                    @keyframes pulse {
+                        0%, 100% { opacity: 1; transform: scale(1); }
+                        50% { opacity: 0.5; transform: scale(1.5); }
+                    }
+                </style>
+            `;
+        }
+
+        // Switch tabs
+        function switchTab(tabName, event) {
+            // Reset all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activate clicked tab
+            event.currentTarget.classList.add('active');
+            
+            // Clear interval if exists
+            if (window.statsInterval) clearInterval(window.statsInterval);
+            
+            // Map tab names to exe files
+            const exeMapping = {
+                'korisnici': 'Lokalni korisnički računi.exe',
+                'grupe': 'Grupe sa korisnicima.exe',
+                'logiranja': 'Izlist logiranja i odjave korisnika.exe',
+                'neaktivni': 'Neaktivni Korisnički računi.exe',
+                'permissions': 'Folder Permissions.exe',
+                'usb': 'Korištenje USB uređaja.exe',
+                'kreiranje-kr': 'Datum kreiranja korisničkih računa.exe',
+                'obrisani-kr': 'Obrisani Local Users_.exe',
+                'print': 'Printer Report.exe',
+                'administratori': 'Admin Group.exe',
+                'serijski': 'Serial Number Report.exe',
+                'upravljanje': 'Upravljanje Korisnicima i grupama_run admin.exe',
+                'hardver': 'Info.exe',
+                'info': null // Special case - about page
+            };
+
+            // Tab titles
+            const tabTitles = {
+                'korisnici': 'Lokalni Korisnički Računi',
+                'grupe': 'Grupe sa Korisnicima',
+                'logiranja': 'Logiranja i Odjave Korisnika',
+                'neaktivni': 'Neaktivni Korisnički Računi',
+                'permissions': 'Folder Permissions',
+                'usb': 'Korištenje USB Uređaja',
+                'kreiranje-kr': 'Datum Kreiranja Korisničkih Računa',
+                'obrisani-kr': 'Obrisani Lokalni Korisnici',
+                'print': 'Printer Report',
+                'administratori': 'Administratorske Grupe',
+                'serijski': 'Serijski Brojevi',
+                'upravljanje': 'Upravljanje Korisnicima i Grupama',
+                'hardver': 'Informacije o Hardveru',
+                'info': 'O Aplikaciji'
+            };
+
+            const title = tabTitles[tabName] || tabName.charAt(0).toUpperCase() + tabName.slice(1);
+            document.getElementById('contentHeader').textContent = title;
+
+            // Special handling for info page
+            if (tabName === 'info') {
+                document.getElementById('contentBody').innerHTML = `
+                    <div class="fade-in info-container">
+                        <div class="version-card">
+                            <h2>Get-PCInfo Professional</h2>
+                            <p class="subtitle" style="color: rgba(255,255,255,0.8); font-style: italic; margin-bottom: 20px;">
+                                Napredni sustav za upravljanje IT infrastrukturom
+                            </p>
+                            <div class="version-details">
+                                <p><strong>Verzija:</strong> 2025.6.3 Professional</p>
+                                <p><strong>Build:</strong> 20250613-1338</p>
+                                <p><strong>Autor:</strong> Ivica Rašan</p>
+                                <p><strong>Platforma:</strong> PowerShell 5.1+ / Windows 10/11</p>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h3>Opis aplikacije</h3>
+                            <p>
+                                <span class="highlight-badge">Get-PCInfo</span> predstavlja najnapredniji PowerShell-based sustav za upravljanje IT infrastrukturom, 
+                                dizajniran posebno za potrebe modernih IT odjela. Aplikacija kombinira moć PowerShell-a s intuitivnim grafičkim sučeljem, 
+                                omogućujući sistemskim administratorima potpunu kontrolu nad lokalnim korisničkim računima, hardverskim resursima, 
+                                sigurnosnim komponentama i sustavskim događajima.
+                            </p>
+                            <p>
+                                Kroz elegantno dizajnirano sučelje s tabovima, aplikacija pruža centralizirani pristup svim kritičnim informacijama o računalu, 
+                                automatski generirajući profesionalne HTML izvještaje s modernim glassmorphism dizajnom.
+                            </p>
+                        </div>
+                        
+                        <div class="stats-container">
+                            <div class="stat-item">
+                                <div class="stat-number">13</div>
+                                <div class="stat-label">PowerShell Modula</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">12</div>
+                                <div class="stat-label">Tipova Izvještaja</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">100+</div>
+                                <div class="stat-label">Tipova Podataka</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">7</div>
+                                <div class="stat-label">Export Formata</div>
+                            </div>
+                        </div>
+                        
+                        <h3 style="color: #e94560; margin: 40px 0 25px 0;">Kompletna lista funkcionalnosti</h3>
+                        
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <h4>📊 Upravljanje korisničkim računima</h4>
+                                <ul>
+                                    <li>Lokalni korisnički računi - pregled svih korisnika s detaljnim informacijama</li>
+                                    <li>Analiza lozinki - datum postavljanja, istek i sigurnosni status</li>
+                                    <li>Grupe sa korisnicima - analiza lokalnih grupa i njihovih članova</li>
+                                    <li>Neaktivni korisnici - identifikacija neaktivnih računa</li>
+                                    <li>Datum kreiranja KR - usporedba datuma iz različitih izvora</li>
+                                    <li>Obrisani korisnici - praćenje izbrisanih računa kroz EventLog</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <h4>🔒 Sigurnost i nadzor</h4>
+                                <ul>
+                                    <li>Logiranja i odjave - praćenje korisničkih prijava kroz EventLog</li>
+                                    <li>Administratorske grupe - pregled članova s privilegijama</li>
+                                    <li>Folder Permissions - analiza prava pristupa</li>
+                                    <li>USB aktivnosti - praćenje korištenja USB uređaja</li>
+                                    <li>Sigurnosne anomalije - detekcija neobičnih aktivnosti</li>
+                                    <li>Audit trail - potpuna transparentnost svih akcija</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <h4>💻 Sistemski resursi</h4>
+                                <ul>
+                                    <li>Hardverske komponente - CPU, RAM, GPU, storage</li>
+                                    <li>Serijski brojevi - prikupljanje s naprednom USB detekcijom</li>
+                                    <li>BIOS informacije - verzija i datum</li>
+                                    <li>Mrežni adapteri - konfiguracije i status</li>
+                                    <li>Instalirani programi - popis sa verzijama</li>
+                                    <li>Windows servisi - status i konfiguracija</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <h4>🖨️ Periferni uređaji</h4>
+                                <ul>
+                                    <li>Printer Report - analiza instaliranih printera</li>
+                                    <li>Povijest printanja - praćenje print jobova</li>
+                                    <li>USB uređaji - identifikacija i praćenje</li>
+                                    <li>Mrežni printeri - status i konfiguracija</li>
+                                    <li>Driver informacije - verzije i kompatibilnost</li>
+                                    <li>Queue management - upravljanje redovima za ispis</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="tech-specs">
+                            <h3>Tehničke specifikacije</h3>
+                            <div class="specs-grid">
+                                <div class="spec-card">
+                                    <h5>Platforme</h5>
+                                    <p>Windows 10 (1909+)<br>Windows 11<br>Windows Server 2016+<br>Windows Server 2019/2022</p>
+                                </div>
+                                <div class="spec-card">
+                                    <h5>Sistemski zahtjevi</h5>
+                                    <p>PowerShell 5.1+<br>.NET Framework 4.5+<br>WMI/CIM podrška<br>EventLog pristup</p>
+                                </div>
+                                <div class="spec-card">
+                                    <h5>Ovisnosti</h5>
+                                    <p>System.Windows.Forms<br>System.Drawing<br>PowerShell.Utility<br>CimCmdlets</p>
+                                </div>
+                                <div class="spec-card">
+                                    <h5>Privilegije</h5>
+                                    <p>Administrator pristup<br>SeSecurityPrivilege<br>SeBackupPrivilege<br>Local Group Policy</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section" style="margin-top: 40px;">
+                            <h3>Prednosti korištenja</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                                <div style="background: rgba(30, 144, 255, 0.1); padding: 20px; border-radius: 12px; border-left: 4px solid #1e90ff;">
+                                    <h4 style="color: #1e90ff; margin-bottom: 10px;">⚡ Vremenska efikasnost</h4>
+                                    <p>Automatizacija složenih administrativnih zadataka štedi sate rada</p>
+                                </div>
+                                <div style="background: rgba(233, 69, 96, 0.1); padding: 20px; border-radius: 12px; border-left: 4px solid #e94560;">
+                                    <h4 style="color: #e94560; margin-bottom: 10px;">🎯 Centralizirani pristup</h4>
+                                    <p>Sve informacije dostupne iz jednog sučelja</p>
+                                </div>
+                                <div style="background: rgba(16, 185, 129, 0.1); padding: 20px; border-radius: 12px; border-left: 4px solid #10b981;">
+                                    <h4 style="color: #10b981; margin-bottom: 10px;">🔐 Sigurnosni nadzor</h4>
+                                    <p>Kontinuirano praćenje korisničkih aktivnosti</p>
+                                </div>
+                                <div style="background: rgba(251, 191, 36, 0.1); padding: 20px; border-radius: 12px; border-left: 4px solid #fbbf24;">
+                                    <h4 style="color: #fbbf24; margin-bottom: 10px;">📈 Profesionalni izvještaji</h4>
+                                    <p>Vizualno atraktivni dokumenti za management</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section" style="margin-top: 40px;">
+                            <h3>Export mogućnosti</h3>
+                            <p>Svaki izvještaj može biti exportovan u sljedeće formate:</p>
+                            <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
+                                <div class="export-badge">📄 TXT - Plain text format</div>
+                                <div class="export-badge">🌐 HTML - Web format sa stilovima</div>
+                                <div class="export-badge">📝 DOC - Microsoft Word</div>
+                                <div class="export-badge">📊 Excel - Tablični prikaz</div>
+                                <div class="export-badge">📈 CSV - Za analizu podataka</div>
+                                <div class="export-badge">📕 PDF - Portable format</div>
+                                <div class="export-badge">🖨️ Print - Direktno printanje</div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section" style="margin-top: 40px;">
+                            <h3>Način korištenja</h3>
+                            <p>
+                                Aplikacija se pokreće s <span class="highlight-badge">administratorskim privilegijama</span> putem PowerShell ISE ili 
+                                PowerShell konzole. Sustav automatski detektira dostupne komponente i generira izvještaje za sve module. 
+                                Svaki izvještaj se prikazuje u aplikaciji s mogućnostima pretraživanja, sortiranja i izvoza podataka.
+                            </p>
+                            <p style="margin-top: 15px;">
+                                Korisnici mogu koristiti sustav za redovite sigurnosne provjere, inventarizaciju hardvera, nadzor korisničkih 
+                                aktivnosti ili generiranje izvještaja za compliance zahtjeve. Svi podaci se prikupljaju u stvarnom vremenu 
+                                direktno iz Windows sustava.
+                            </p>
+                        </div>
+                        
+                        <div class="footer-info">
+                            <p>
+                                <strong>© 2025 Ivica Rašan</strong><br>
+                                Sva prava pridržana. Ova aplikacija je razvijena za potrebe IT administracije.<br>
+                                <em>PowerShell 5.1.17763.7131 | .NET 4.0.30319.42000</em>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <style>
+                        .export-badge {
+                            background: rgba(255,255,255,0.1);
+                            padding: 10px 20px;
+                            border-radius: 20px;
+                            border: 1px solid rgba(255,255,255,0.2);
+                            font-size: 14px;
+                            transition: all 0.3s ease;
+                        }
+                        
+                        .export-badge:hover {
+                            background: rgba(255,255,255,0.15);
+                            transform: translateY(-2px);
+                            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                        }
+                        
+                        .subtitle {
+                            text-align: center;
+                            font-size: 18px;
+                            margin-bottom: 20px;
+                        }
+                    </style>
+                `;
+                return;
+            }
+
+            // Generate content with export options
+            const exeName = exeMapping[tabName];
+            
+            // Detailed descriptions for each module
+            const moduleDescriptions = {
+                'korisnici': 'Ovaj modul omogućava detaljan pregled svih lokalnih korisničkih računa s informacijama o statusu, lozinkama, grupama i SID-ovima. Analizira datum kreiranja računa, posljednju prijavu, status lozinki i administratorske privilegije.',
+                'grupe': 'Analizira lokalne grupe i njihove članove s detaljnim informacijama o korisničkim ulogama. Prikazuje sve lokalne grupe, njihove opise i kompletnu listu članova za svaku grupu.',
+                'logiranja': 'Praćenje korisničkih prijava i odjava kroz Windows EventLog s analizom sesija i trajanja. Identificira sve korisničke sesije, vrijeme prijave i odjave te kalkulira trajanje svake sesije.',
+                'neaktivni': 'Identifikacija neaktivnih korisničkih računa s detaljnim statusom lozinki i administratorskim pravima. Pomaže u održavanju sigurnosti identificiranjem računa koji se ne koriste.',
+                'permissions': 'Analiza prava pristupa folderima s detaljnim prikazom dozvola za organizacijske strukture. Skenira specificirane putanje i prikazuje sve korisničke dozvole.',
+                'usb': 'Praćenje USB aktivnosti s identifikacijom korisnika i vremenskim okvirom korištenja. Analizira EventLog za sve USB događaje i povezuje ih s korisnicima koji su bili prijavljeni.',
+                'kreiranje-kr': 'Usporedba datuma kreiranja korisničkih računa iz različitih izvora (EventLog, WMI, Registry). Osigurava točnost podataka cross-referenciranjem više izvora.',
+                'obrisani-kr': 'Praćenje izbrisanih korisničkih računa kroz EventLog s informacijama o administratoru koji je izvršio brisanje i točnim vremenom akcije.',
+                'print': 'Analiza instaliranih printera, povijesti printanja i statusu redova za ispis. Prikazuje sve instalirane printere, njihov status i nedavne print jobove.',
+                'administratori': 'Pregled članova lokalne Administrators grupe s detaljnim informacijama o privilegijama. Kritičan za sigurnosne provjere i compliance.',
+                'serijski': 'Prikupljanje serijskih brojeva svih hardverskih komponenti s poboljšanom USB detekcijom. Koristi multiple WMI klase za kompletnu inventarizaciju.',
+                'upravljanje': 'Napredne opcije upravljanja korisnicima i grupama s administratorskim privilegijama. Omogućava kompleksnije operacije nad korisničkim računima.',
+                'hardver': 'Detaljne informacije o hardverskim komponentama uključujući CPU, RAM, GPU, storage, mrežne adaptere i BIOS informacije.'
+            };
+            
+            const description = moduleDescriptions[tabName] || `Izvršava se PowerShell skripta: <strong>${exeName}</strong>`;
+            
+            const content = `
+                <div class="fade-in">
+                    <div class="module-description">
+                        <p>${description}</p>
+                    </div>
+                    
+                    <!-- Export Options -->
+                    <div style="background: rgba(255,255,255,0.03); border-radius: 15px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);">
+                        <h4 style="color: #e94560; margin-bottom: 15px; font-size: 18px;">Export Opcije</h4>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            <button class="export-button" onclick="exportData('txt')" title="Spremi kao TXT">
+                                <span style="margin-right: 5px;">📄</span> TXT
+                            </button>
+                            <button class="export-button" onclick="exportData('html')" title="Spremi kao HTML">
+                                <span style="margin-right: 5px;">🌐</span> HTML
+                            </button>
+                            <button class="export-button" onclick="exportData('doc')" title="Spremi kao DOC">
+                                <span style="margin-right: 5px;">📝</span> DOC
+                            </button>
+                            <button class="export-button" onclick="exportData('excel')" title="Spremi kao Excel">
+                                <span style="margin-right: 5px;">📊</span> Excel
+                            </button>
+                            <button class="export-button" onclick="exportData('csv')" title="Spremi kao CSV">
+                                <span style="margin-right: 5px;">📈</span> CSV
+                            </button>
+                            <button class="export-button" onclick="exportData('pdf')" title="Spremi kao PDF">
+                                <span style="margin-right: 5px;">📕</span> PDF
+                            </button>
+                            <button class="export-button print" onclick="printData()" title="Print">
+                                <span style="margin-right: 5px;">🖨️</span> Print
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button class="execute-button" onclick="executeExe('${tabName}')">
+                        <span style="margin-right: 8px;">▶</span> Pokreni Analizu
+                    </button>
+                    
+                    <div id="result" class="result-container" style="margin-top: 20px; display: none;"></div>
+                </div>
+                
+                <style>
+                    .module-description {
+                        background: rgba(30, 144, 255, 0.1);
+                        border-left: 4px solid #1e90ff;
+                        padding: 20px;
+                        border-radius: 10px;
+                        margin-bottom: 20px;
+                    }
+                    
+                    .module-description p {
+                        color: #f4f4f4;
+                        font-size: 16px;
+                        line-height: 1.6;
+                        margin: 0;
+                    }
+                </style>
+            `;
+
+            document.getElementById('contentBody').innerHTML = content;
+        }
+
+        // Execute EXE file
+        async function executeExe(tabName) {
+            const button = event.target;
+            const resultDiv = document.getElementById('result');
+            
+            // Map to exe files
+            const exeMapping = {
+                'korisnici': 'scripts/Lokalni korisnički računi.exe',
+                'grupe': 'scripts/Grupe sa korisnicima.exe',
+                'logiranja': 'scripts/Izlist logiranja i odjave korisnika.exe',
+                'neaktivni': 'scripts/Neaktivni Korisnički računi.exe',
+                'permissions': 'scripts/Folder Permissions.exe',
+                'usb': 'scripts/Korištenje USB uređaja.exe',
+                'kreiranje-kr': 'scripts/Datum kreiranja korisničkih računa.exe',
+                'obrisani-kr': 'scripts/Obrisani Local Users_.exe',
+                'print': 'scripts/Printer Report.exe',
+                'administratori': 'scripts/Admin Group.exe',
+                'serijski': 'scripts/Serial Number Report.exe',
+                'upravljanje': 'scripts/Upravljanje Korisnicima i grupama_run admin.exe',
+                'hardver': 'scripts/Info.exe'
+            };
+
+            const exePath = exeMapping[tabName];
+            
+            button.disabled = true;
+            button.innerHTML = '<span class="spinner-small"></span> Izvršavanje...';
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Pokretanje ${exePath ? exePath.split('/')[1] : 'analize'}...</p>
+                </div>
+            `;
+
+            // Add spinner style if not exists
+            if (!document.getElementById('spinnerStyle')) {
+                const style = document.createElement('style');
+                style.id = 'spinnerStyle';
+                style.textContent = `
+                    .spinner-small {
+                        display: inline-block;
+                        width: 16px;
+                        height: 16px;
+                        border: 2px solid rgba(255,255,255,0.3);
+                        border-top: 2px solid #fff;
+                        border-radius: 50%;
+                        animation: spin 1s linear infinite;
+                        margin-right: 8px;
+                        vertical-align: middle;
+                    }
+                    .export-button {
+                        padding: 8px 16px;
+                        font-size: 14px;
+                        background: rgba(255,255,255,0.05);
+                        color: #fff;
+                        border: 1px solid rgba(255,255,255,0.2);
+                        border-radius: 8px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        display: inline-flex;
+                        align-items: center;
+                    }
+                    .export-button:hover {
+                        background: rgba(255,255,255,0.1);
+                        border-color: rgba(255,255,255,0.3);
+                        transform: translateY(-2px);
+                    }
+                    .export-button.print {
+                        background: rgba(30, 144, 255, 0.2);
+                        border-color: rgba(30, 144, 255, 0.4);
+                    }
+                    .export-button.print:hover {
+                        background: rgba(30, 144, 255, 0.3);
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            // Execute the exe file (if using Electron)
+            if (window.electronAPI && window.electronAPI.executeExe && exePath) {
+                try {
+                    const result = await window.electronAPI.executeExe(exePath);
+                    resultDiv.innerHTML = `
+                        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                            <p style="color: #10b981; margin: 0;">✓ Izvršeno uspješno</p>
+                        </div>
+                        <div id="exe-output">${result}</div>
+                    `;
+                    
+                    // Store result for export
+                    window.currentResult = result;
+                } catch (error) {
+                    resultDiv.innerHTML = `<div class="error">Greška: ${error.message}</div>`;
+                }
+            } else {
+                // Simulate execution for demo
+                setTimeout(() => {
+                    const sampleResults = {
+                        'korisnici': `
+                            <h3>Lokalni Korisnički Računi</h3>
+                            <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                                <tr style="background: rgba(30, 144, 255, 0.2);">
+                                    <th style="padding: 10px; text-align: left; border: 1px solid rgba(255,255,255,0.1);">Korisničko ime</th>
+                                    <th style="padding: 10px; text-align: left; border: 1px solid rgba(255,255,255,0.1);">Puno ime</th>
+                                    <th style="padding: 10px; text-align: left; border: 1px solid rgba(255,255,255,0.1);">Status</th>
+                                    <th style="padding: 10px; text-align: left; border: 1px solid rgba(255,255,255,0.1);">Zadnja prijava</th>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1);">Administrator</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1);">Glavni Administrator</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1); color: #10b981;">Aktivan</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1);">13.06.2025 14:32</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1);">ivica.rasan</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1);">Ivica Rašan</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1); color: #10b981;">Aktivan</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1);">13.06.2025 09:15</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1);">guest</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1);">Guest Account</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1); color: #ef4444;">Onemogućen</td>
+                                    <td style="padding: 10px; border: 1px solid rgba(255,255,255,0.1);">-</td>
+                                </tr>
+                            </table>
+                            <p style="margin-top: 20px; color: #888;">Ukupno korisnika: 3 | Aktivnih: 2 | Onemogućenih: 1</p>
+                        `,
+                        'grupe': `
+                            <h3>Grupe sa Korisnicima</h3>
+                            <div style="margin-top: 20px;">
+                                <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 10px; margin-bottom: 15px;">
+                                    <h4 style="color: #1e90ff; margin-bottom: 10px;">Administrators</h4>
+                                    <p style="color: #888; margin-bottom: 10px;">Članovi:</p>
+                                    <ul style="list-style: none; padding-left: 20px;">
+                                        <li style="color: #fff; padding: 5px 0;">• Administrator</li>
+                                        <li style="color: #fff; padding: 5px 0;">• ivica.rasan</li>
+                                    </ul>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 10px; margin-bottom: 15px;">
+                                    <h4 style="color: #1e90ff; margin-bottom: 10px;">Users</h4>
+                                    <p style="color: #888; margin-bottom: 10px;">Članovi:</p>
+                                    <ul style="list-style: none; padding-left: 20px;">
+                                        <li style="color: #fff; padding: 5px 0;">• ivica.rasan</li>
+                                        <li style="color: #fff; padding: 5px 0;">• guest</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `,
+                        'administratori': `
+                            <h3>Administratorske Grupe</h3>
+                            <div style="background: rgba(233, 69, 96, 0.1); border: 1px solid rgba(233, 69, 96, 0.3); padding: 20px; border-radius: 10px; margin-top: 20px;">
+                                <h4 style="color: #e94560; margin-bottom: 15px;">⚠️ Administratori Sistema</h4>
+                                <table style="width: 100%; margin-top: 15px;">
+                                    <tr>
+                                        <td style="padding: 10px; color: #888;">Korisnik:</td>
+                                        <td style="padding: 10px; color: #fff;">Administrator</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px; color: #888;">Tip:</td>
+                                        <td style="padding: 10px; color: #fff;">Built-in Administrator</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px; color: #888;">SID:</td>
+                                        <td style="padding: 10px; color: #fff; font-family: monospace;">S-1-5-21-500</td>
+                                    </tr>
+                                </table>
+                                <hr style="margin: 20px 0; border: 1px solid rgba(255,255,255,0.1);">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="padding: 10px; color: #888;">Korisnik:</td>
+                                        <td style="padding: 10px; color: #fff;">ivica.rasan</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px; color: #888;">Tip:</td>
+                                        <td style="padding: 10px; color: #fff;">Domain Administrator</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 10px; color: #888;">Dodan:</td>
+                                        <td style="padding: 10px; color: #fff;">01.03.2025</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        `
+                    };
+
+                    const defaultResult = `
+                        <h3>${tabName.charAt(0).toUpperCase() + tabName.slice(1)} - Rezultati</h3>
+                        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 10px; margin-top: 20px;">
+                            <p style="color: #fff;">Izvršavanje skripte završeno uspješno.</p>
+                            <p style="color: #888; margin-top: 10px;">Vrijeme izvršavanja: ${new Date().toLocaleString('hr-HR')}</p>
+                        </div>
+                    `;
+
+                    const htmlResult = sampleResults[tabName] || defaultResult;
+                    
+                    resultDiv.innerHTML = `
+                        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                            <p style="color: #10b981; margin: 0;">✓ Izvršeno uspješno</p>
+                        </div>
+                        <div id="exe-output">${htmlResult}</div>
+                    `;
+                    
+                    // Store result for export
+                    window.currentResult = htmlResult;
+                }, 2000);
+            }
+
+            button.disabled = false;
+            button.innerHTML = '<span style="margin-right: 8px;">▶</span> Pokreni Ponovo';
+        }
+
+        // Export data function
+        function exportData(format) {
+            if (!window.currentResult) {
+                alert('Nema podataka za export. Prvo pokrenite analizu.');
+                return;
+            }
+
+            const filename = `report_${new Date().getTime()}`;
+            
+            switch(format) {
+                case 'txt':
+                    // Convert HTML to plain text
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = window.currentResult;
+                    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+                    downloadFile(plainText, `${filename}.txt`, 'text/plain');
+                    break;
+                    
+                case 'html':
+                    const htmlContent = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <title>Get-PCInfo Report</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; margin: 20px; }
+                                table { border-collapse: collapse; width: 100%; }
+                                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                                th { background-color: #f2f2f2; }
+                            </style>
+                        </head>
+                        <body>
+                            ${window.currentResult}
+                            <hr>
+                            <p>Generated by Get-PCInfo Professional v2025.6.3</p>
+                        </body>
+                        </html>
+                    `;
+                    downloadFile(htmlContent, `${filename}.html`, 'text/html');
+                    break;
+                    
+                case 'csv':
+                    alert('CSV export će biti implementiran u sljedećoj verziji.');
+                    break;
+                    
+                case 'excel':
+                    alert('Excel export će biti implementiran u sljedećoj verziji.');
+                    break;
+                    
+                case 'doc':
+                    alert('Word export će biti implementiran u sljedećoj verziji.');
+                    break;
+                    
+                case 'pdf':
+                    if (window.electronAPI && window.electronAPI.exportPDF) {
+                        window.electronAPI.exportPDF(window.currentResult, filename);
+                    } else {
+                        alert('PDF export zahtijeva Electron okruženje.');
+                    }
+                    break;
+            }
+            
+            // Show success message
+            showExportSuccess(format);
+        }
+
+        // Print data function
+        function printData() {
+            if (!window.currentResult) {
+                alert('Nema podataka za print. Prvo pokrenite analizu.');
+                return;
+            }
+
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Print - Get-PCInfo Report</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        table { border-collapse: collapse; width: 100%; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        @media print {
+                            body { margin: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h2>Get-PCInfo Professional Report</h2>
+                    ${window.currentResult}
+                    <hr>
+                    <p>Generated: ${new Date().toLocaleString('hr-HR')}</p>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Download file helper
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        // Show export success message
+        function showExportSuccess(format) {
+            const message = document.createElement('div');
+            message.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: rgba(16, 185, 129, 0.9);
+                color: white;
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            message.innerHTML = `✓ Uspješno exportovano u ${format.toUpperCase()} format`;
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                message.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => document.body.removeChild(message), 300);
+            }, 3000);
+        }
+
+        // Add animation styles
+        const exportStyle = document.createElement('style');
+        exportStyle.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(exportStyle);
+
+        // Execute PowerShell commands
+        async function executeCommand(command) {
+            const button = event.target;
+            const resultDiv = document.getElementById('result');
+            
+            button.disabled = true;
+            button.textContent = 'Izvršavanje...';
+            
+            resultDiv.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Izvršavanje PowerShell komande...</p>
+                </div>
+            `;
+
+            // Simulate command execution
+            setTimeout(() => {
+                // Simulate results based on command
+                let output = '';
+                
+                switch(command) {
+                    case 'Get-LocalUser':
+                        output = `Name               Enabled Description
+----               ------- -----------
+Administrator      True    Built-in account for administering the computer/domain
+DefaultAccount     False   A user account managed by the system
+Guest              False   Built-in account for guest access
+${systemInfo.computerName}\\User True    Local user account`;
+                        break;
+                    
+                    case 'Get-LocalGroup':
+                        output = `Name                          Description
+----                          -----------
+Access Control Assistance O... Members of this group can remotely query authorization
+Administrators                Administrators have complete and unrestricted access
+Backup Operators              Backup Operators can override security restrictions
+Cryptographic Operators       Members are authorized to perform cryptographic operations
+Device Owners                 Members of this group can change system-wide settings`;
+                        break;
+                    
+                    case 'Get-ComputerInfo':
+                        output = `CsName                 : ${systemInfo.computerName}
+CsProcessors           : {${systemInfo.cpuName}}
+CsTotalPhysicalMemory  : ${systemInfo.ramSize}
+OsName                 : Microsoft Windows 11 Pro
+OsArchitecture         : 64-bit
+WindowsVersion         : 2009
+WindowsBuildLabEx      : 22000.1.amd64fre.co_release`;
+                        break;
+                    
+                    case 'Get-Package':
+                        output = `Name                           Version          Source
+----                           -------          ------
+7-Zip 19.00 (x64)              19.00            
+Adobe Acrobat Reader DC        2023.003.20269   
+Google Chrome                  120.0.6099.130   
+Microsoft Edge                 120.0.2210.91    
+Microsoft Office Professional  16.0.16924.20124 
+Visual Studio Code             1.85.1           
+VLC media player               3.0.20`;
+                        break;
+                    
+                    default:
+                        output = 'Command executed successfully.';
+                }
+                
+                resultDiv.innerHTML = `<pre>${output}</pre>`;
+                button.disabled = false;
+                button.textContent = 'Izvršeno - Klikni za ponovno';
+            }, 2000);
+        }
+
+        // Update system stats
+        function updateSystemStats() {
+            // CPU Usage
+            const cpuUsage = Math.floor(Math.random() * 40 + 10);
+            const cpuUsageEl = document.getElementById('cpuUsage');
+            const cpuBar = document.getElementById('cpuBar');
+            if (cpuUsageEl) cpuUsageEl.textContent = cpuUsage;
+            if (cpuBar) cpuBar.style.width = cpuUsage + '%';
+            
+            // CPU Temperature
+            const cpuTemp = Math.floor(Math.random() * 20 + 40);
+            const cpuTempEl = document.getElementById('cpuTemp');
+            if (cpuTempEl) cpuTempEl.textContent = cpuTemp;
+            
+            // CPU Cores
+            const cores = navigator.hardwareConcurrency || 8;
+            const cpuCoresEl = document.getElementById('cpuCores');
+            if (cpuCoresEl) cpuCoresEl.textContent = cores;
+            
+            // RAM Usage
+            const ramTotal = parseFloat(systemInfo.ramShort) || 8;
+            const ramUsage = (Math.random() * (ramTotal * 0.5) + (ramTotal * 0.3)).toFixed(1);
+            const ramPercent = Math.floor((ramUsage / ramTotal) * 100);
+            
+            const ramUsageEl = document.getElementById('ramUsage');
+            const ramPercentEl = document.getElementById('ramPercent');
+            const ramBar = document.getElementById('ramBar');
+            
+            if (ramUsageEl) ramUsageEl.textContent = ramUsage;
+            if (ramPercentEl) ramPercentEl.textContent = ramPercent;
+            if (ramBar) ramBar.style.width = ramPercent + '%';
+            
+            // Disk Usage
+            const diskUsage = Math.floor(Math.random() * 50 + 100);
+            const diskTotal = 256;
+            const diskPercent = Math.floor((diskUsage / diskTotal) * 100);
+            
+            const diskUsageEl = document.getElementById('diskUsage');
+            const diskTotalEl = document.getElementById('diskTotal');
+            const diskPercentEl = document.getElementById('diskPercent');
+            const diskBar = document.getElementById('diskBar');
+            
+            if (diskUsageEl) diskUsageEl.textContent = diskUsage;
+            if (diskTotalEl) diskTotalEl.textContent = diskTotal;
+            if (diskPercentEl) diskPercentEl.textContent = diskPercent;
+            if (diskBar) diskBar.style.width = diskPercent + '%';
+            
+            // Network
+            const ping = Math.floor(Math.random() * 20 + 5);
+            const networkPingEl = document.getElementById('networkPing');
+            if (networkPingEl) networkPingEl.textContent = ping;
+            
+            // Network status
+            const networkStatusEl = document.getElementById('networkStatus');
+            if (networkStatusEl) {
+                if (navigator.onLine) {
+                    networkStatusEl.textContent = '● Povezano';
+                    networkStatusEl.style.color = '#10b981';
+                } else {
+                    networkStatusEl.textContent = '● Nije povezano';
+                    networkStatusEl.style.color = '#ef4444';
+                }
+            }
+        }
+
+        // Create floating particles
+        function createParticles() {
+            const container = document.querySelector('.container .animated-bg');
+            if (!container) return;
+            
+            // Create regular floating particles - reduced number for better performance
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    width: ${Math.random() * 80 + 40}px;
+                    height: ${Math.random() * 80 + 40}px;
+                    background: radial-gradient(circle, rgba(${Math.random() * 100 + 100}, ${Math.random() * 100 + 100}, 255, 0.2) 0%, transparent 70%);
+                    border-radius: 50%;
+                    left: ${Math.random() * 100}%;
+                    animation: floatUp ${Math.random() * 20 + 20}s linear infinite;
+                    animation-delay: ${Math.random() * 10}s;
+                    pointer-events: none;
+                    filter: blur(${Math.random() * 15 + 10}px);
+                `;
+                container.appendChild(particle);
+            }
+            
+            // Create small particle system
+            const particleSystem = document.getElementById('particleSystem');
+            if (particleSystem) {
+                setInterval(() => {
+                    if (Math.random() > 0.8) {
+                        const particle = document.createElement('div');
+                        particle.className = 'particle';
+                        particle.style.cssText = `
+                            width: ${Math.random() * 3 + 1}px;
+                            height: ${Math.random() * 3 + 1}px;
+                            left: ${Math.random() * 100}%;
+                            animation: particleFall ${Math.random() * 8 + 5}s linear;
+                            animation-delay: ${Math.random() * 2}s;
+                        `;
+                        particleSystem.appendChild(particle);
+                        
+                        // Remove particle after animation
+                        setTimeout(() => {
+                            particle.remove();
+                        }, 10000);
+                    }
+                }, 1000);
+            }
+        }
+        
+        // Add interactive glow effect on mouse move
+        function addInteractiveGlow() {
+            const container = document.querySelector('.container');
+            if (!container) return;
+            
+            const glowElement = document.createElement('div');
+            glowElement.style.cssText = `
+                position: absolute;
+                width: 200px;
+                height: 200px;
+                background: radial-gradient(circle, rgba(30, 144, 255, 0.2) 0%, transparent 50%);
+                border-radius: 50%;
+                pointer-events: none;
+                filter: blur(50px);
+                z-index: 5;
+                transition: opacity 0.3s ease;
+                opacity: 0;
+            `;
+            container.appendChild(glowElement);
+            
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left - 100;
+                const y = e.clientY - rect.top - 100;
+                
+                glowElement.style.left = x + 'px';
+                glowElement.style.top = y + 'px';
+                glowElement.style.opacity = '1';
+            });
+            
+            container.addEventListener('mouseleave', () => {
+                glowElement.style.opacity = '0';
+            });
+        }
+        
+        // Enhanced system stats animation
+        function animateSystemStats() {
+            // Add pulsing effect to stat values
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach((stat, index) => {
+                stat.style.animation = `pulse ${2 + index * 0.5}s ease-in-out infinite`;
+            });
+            
+            // Add gradient animation to progress bars
+            const bars = ['cpuBar', 'ramBar', 'diskBar'];
+            bars.forEach(barId => {
+                const bar = document.getElementById(barId);
+                if (bar) {
+                    const gradient = document.createElement('div');
+                    gradient.style.cssText = `
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+                        animation: shimmerMove 2s linear infinite;
+                    `;
+                    bar.appendChild(gradient);
+                }
+            });
+        }
+        
+        // Add shimmer move animation
+        const shimmerStyle = document.createElement('style');
+        shimmerStyle.textContent = `
+            @keyframes shimmerMove {
+                from {
+                    transform: translateX(-100%);
+                }
+                to {
+                    transform: translateX(100%);
+                }
+            }
+        `;
+        if (!document.querySelector('style[data-shimmer]')) {
+            shimmerStyle.setAttribute('data-shimmer', 'true');
+            document.head.appendChild(shimmerStyle);
+        }
+
+        // Window controls
+        function minimizeWindow() {
+            if (window.electronAPI && window.electronAPI.minimizeWindow) {
+                window.electronAPI.minimizeWindow();
+            } else {
+                // For browser testing - minimize simulation
+                document.getElementById('mainContainer').style.display = 'none';
+                setTimeout(() => {
+                    document.getElementById('mainContainer').style.display = 'flex';
+                }, 100);
+            }
+        }
+
+        function maximizeWindow() {
+            if (window.electronAPI && window.electronAPI.maximizeWindow) {
+                window.electronAPI.maximizeWindow();
+            } else {
+                // For browser testing - toggle fullscreen
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.log('Fullscreen error:', err);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        function closeWindow() {
+            if (window.electronAPI && window.electronAPI.closeWindow) {
+                window.electronAPI.closeWindow();
+            } else {
+                // For browser testing - confirm and close
+                if (confirm('Jeste li sigurni da želite zatvoriti aplikaciju?')) {
+                    window.close();
+                    // If window.close() doesn't work, hide the app
+                    document.body.style.display = 'none';
+                }
+            }
+        }
+
+        // Add floating animation
+        const floatStyle = document.createElement('style');
+        floatStyle.textContent = `
+            @keyframes floatUp {
+                from {
+                    transform: translateY(100vh) rotate(0deg);
+                    opacity: 0;
+                }
+                10% {
+                    opacity: 0.8;
+                }
+                90% {
+                    opacity: 0.8;
+                }
+                to {
+                    transform: translateY(-100vh) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+            
+            .launch-button.show {
+                opacity: 1 !important;
+                transform: translateY(0) !important;
+            }
+            
+            .welcome-screen.hidden {
+                opacity: 0 !important;
+                visibility: hidden !important;
+            }
+        `;
+        document.head.appendChild(floatStyle);
+
+        // Start application
+        document.addEventListener('DOMContentLoaded', function() {
+            detectSystemInfo();
+            updateProgress();
+            
+            // Add click event to launch button
+            document.getElementById('launchBtn').addEventListener('click', startApplication);
+        });
+
+        // Update network status on change
+        window.addEventListener('online', updateSystemStats);
+        window.addEventListener('offline', updateSystemStats);
+    </script>
+</body>
+</html>

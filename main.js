@@ -1,0 +1,90 @@
+const { app, BrowserWindow, ipcMain } = require('electron');
+const path = require('path');
+const { exec } = require('child_process');
+
+let mainWindow;
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1400,
+    height: 900,
+    minWidth: 1200,
+    minHeight: 700,
+    title: 'Get-PCInfo Professional',
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    },
+    frame: false,
+    backgroundColor: '#1a1a2e',
+    icon: path.join(__dirname, 'assets/icon.ico')
+  });
+
+  mainWindow.loadFile('index.html');
+  
+  // Omogući DevTools u development modu
+  if (process.env.NODE_ENV === 'development') {
+    mainWindow.webContents.openDevTools();
+  }
+}
+
+app.whenReady().then(createWindow);
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});
+
+// IPC Handler za izvršavanje PowerShell skripti
+ipcMain.handle('execute-powershell', async (event, scriptPath) => {
+  return new Promise((resolve, reject) => {
+    const command = `powershell.exe -ExecutionPolicy Bypass -File "${scriptPath}"`;
+    
+    exec(command, { encoding: 'utf8' }, (error, stdout, stderr) => {
+      if (error) {
+        reject({ error: error.message, stderr });
+      } else {
+        resolve({ stdout, stderr });
+      }
+    });
+  });
+});
+
+// IPC Handler za izvršavanje EXE datoteka
+// Koristi se za pokretanje kompajliranih administrativnih alata
+ipcMain.handle('execute-exe', async (event, exePath) => {
+  return new Promise((resolve, reject) => {
+    // Izvršava .exe datoteku i vraća rezultate
+    exec(`"${exePath}"`, { encoding: 'utf8' }, (error, stdout, stderr) => {
+      if (error) {
+        reject({ error: error.message, stderr });
+      } else {
+        resolve({ stdout, stderr });
+      }
+    });
+  });
+});
+
+// IPC Handlers za window kontrole
+ipcMain.on('window-minimize', () => {
+  mainWindow.minimize();
+});
+
+ipcMain.on('window-maximize', () => {
+  if (mainWindow.isMaximized()) {
+    mainWindow.restore();
+  } else {
+    mainWindow.maximize();
+  }
+});
+
+ipcMain.on('window-close', () => {
+  mainWindow.close();
+});
